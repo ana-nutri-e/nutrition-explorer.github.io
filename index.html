@@ -48,13 +48,18 @@
             🥗 Food Explorer
           </button>
           <button id="tab-goals" onclick="switchToGoals()" class="px-6 py-3 font-semibold rounded-t-lg transition-all" style="background: transparent; color: #7a7970; border-top: 3px solid transparent;">
-            🎯 Find Foods for a Goal
+            🎯 Targeted Nutrition
           </button>
         </div>
-        <button id="dark-mode-toggle" onclick="toggleDarkMode()" class="px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
-          <span id="toggle-icon">🌙</span>
-          <span id="toggle-text">Dark</span>
-        </button>
+        <div class="flex items-center gap-2 md:gap-3">
+          <button onclick="openAddFoodModal()" class="px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold transition-all hover:opacity-90 whitespace-nowrap" style="background: #9ca583; color: white; border: none; cursor: pointer;">
+            + Add Food
+          </button>
+          <button id="dark-mode-toggle" onclick="toggleDarkMode()" class="px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+            <span id="toggle-icon">🌙</span>
+            <span id="toggle-text">Dark</span>
+          </button>
+        </div>
       </div>
     </div>
     <!-- Food Explorer Page -->
@@ -83,25 +88,20 @@
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Category Filter + Add Food Button -->
+            <!-- Category Filter -->
             <div>
               <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Category</label>
-              <div class="flex gap-2">
-                <select id="category-filter" class="flex-1 px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
-                  <option value="all">All Categories</option>
-                  <option value="fruits">🍎 Fruits</option>
-                  <option value="vegetables">🥦 Vegetables</option>
-                  <option value="proteins">🥩 Proteins</option>
-                  <option value="grains">🌾 Grains</option>
-                  <option value="dairy">🥛 Dairy</option>
-                  <option value="nuts">🥜 Nuts & Seeds</option>
-                  <option value="legumes">🫘 Legumes</option>
-                  <option value="oils">🫒 Oils & Condiments</option>
-                </select>
-                <button onclick="openAddFoodModal()" class="px-4 py-3 rounded-lg font-semibold transition-all hover:opacity-90" style="background: #9ca583; color: white; border: none; cursor: pointer; white-space: nowrap;">
-                  + Add Food
-                </button>
-              </div>
+              <select id="category-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Categories</option>
+                <option value="fruits">🍎 Fruits</option>
+                <option value="vegetables">🥦 Vegetables</option>
+                <option value="proteins">🥩 Proteins</option>
+                <option value="grains">🌾 Grains</option>
+                <option value="dairy">🥛 Dairy</option>
+                <option value="nuts">🥜 Nuts & Seeds</option>
+                <option value="legumes">🫘 Legumes</option>
+                <option value="oils">🫒 Oils & Condiments</option>
+              </select>
             </div>
             <!-- Goal Filter -->
             <div>
@@ -166,7 +166,7 @@
               <span class="text-6xl">🎯</span>
             </div>
             <div>
-              <h1 class="text-4xl font-bold" style="color: #2d2d24;">Find Foods for a Goal</h1>
+              <h1 class="text-4xl font-bold" style="color: #2d2d24;">Targeted Nutrition</h1>
               <p class="text-base" style="color: #7a7970;">Select a health goal and discover ranked foods with detailed benefits</p>
             </div>
           </div>
