@@ -1,0 +1,3941 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260726-23-5888c34"}');</script><script src="/_sdk/e358eac22bd01364.telemetry_sdk.js" integrity="sha512-KPxp3rw4K8Nu9ceWJc3gyM7srgaZxiFWOVbyu260EYzzAqdz10mfo5xyXrCx+wEKtGo77JbtmwXvFLbwrGzwvw=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutritional Database</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/58fe3688b755eeb3.element_sdk.js" integrity="sha512-OMjvInGwXrNzr3Wzjbb1g4+6UqSJ6JZQ8iyW9B1TgkUVKtQQya+sYfHVDL3seI5VxPiNT5nwy1K0LUByUi9ETQ=="></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'DM Sans', sans-serif;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="h-full m-0 p-0">
+  <div id="app-wrapper" class="h-full w-full overflow-auto" style="background: #faf8f3;">
+    <!-- Navigation Tabs -->
+    <div class="sticky top-0 z-40 px-6 md:px-10 pt-6 pb-0" style="border-bottom: 2px solid #e8e5df; background: #faf8f3;">
+      <div class="max-w-6xl mx-auto flex items-center justify-between pb-4">
+        <div class="flex gap-4">
+          <button id="tab-explorer" onclick="switchToExplorer()" class="px-6 py-3 font-semibold rounded-t-lg transition-all" style="background: white; color: #9ca583; border-top: 3px solid #9ca583;">
+            🥗 Food Explorer
+          </button>
+          <button id="tab-goals" onclick="switchToGoals()" class="px-6 py-3 font-semibold rounded-t-lg transition-all" style="background: transparent; color: #7a7970; border-top: 3px solid transparent;">
+            🎯 Targeted Nutrition
+          </button>
+        </div>
+        <div class="flex items-center gap-2 md:gap-3">
+          <button onclick="openAddFoodModal()" class="px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold transition-all hover:opacity-90 whitespace-nowrap" style="background: #9ca583; color: white; border: none; cursor: pointer;">
+            + Add Food
+          </button>
+          <button id="dark-mode-toggle" onclick="toggleDarkMode()" class="px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+            <span id="toggle-icon">🌙</span>
+            <span id="toggle-text">Dark</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Food Explorer Page -->
+    <div id="explorer-page" class="min-h-full w-full p-6 md:p-10">
+      <div class="max-w-6xl mx-auto mb-8">
+        <!-- Header -->
+        <header class="max-w-6xl mx-auto mb-8">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: #9ca583;">
+              <span class="text-6xl">🥗</span>
+            </div>
+            <div>
+              <h1 id="app-title" class="text-4xl font-bold" style="color: #2d2d24;">Nutrition Explorer</h1>
+              <p id="app-subtitle" class="text-base" style="color: #7a7970;">Discover foods that support your wellness</p>
+            </div>
+          </div>
+        </header>
+        <!-- Filter Bar -->
+        <div class="max-w-6xl mx-auto mb-8">
+          <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <div class="flex-1 relative">
+              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style="color: #9ca583;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input type="text" id="search-input" placeholder="Search foods..." class="w-full pl-12 pr-4 py-3 rounded-lg text-base focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" onfocus="this.style.borderColor='#9ca583'" onblur="updateInputBorder()">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Category Filter -->
+            <div>
+              <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Category</label>
+              <select id="category-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Categories</option>
+                <option value="fruits">🍎 Fruits</option>
+                <option value="vegetables">🥦 Vegetables</option>
+                <option value="proteins">🥩 Proteins</option>
+                <option value="grains">🌾 Grains</option>
+                <option value="dairy">🥛 Dairy</option>
+                <option value="nuts">🥜 Nuts & Seeds</option>
+                <option value="legumes">🫘 Legumes</option>
+                <option value="oils">🫒 Oils & Condiments</option>
+              </select>
+            </div>
+            <!-- Goal Filter -->
+            <div>
+              <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Goal</label>
+              <select id="goal-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Goals</option>
+                <option value="hormones">⚖️ Hormones</option>
+                <option value="gut">🦠 Gut Health</option>
+                <option value="energy">⚡ Energy</option>
+                <option value="heart">❤️ Heart Health</option>
+                <option value="brain">🧠 Brain</option>
+                <option value="bone">🦴 Bone</option>
+                <option value="skin">✨ Skin</option>
+              </select>
+            </div>
+            <!-- Nutrient Filter -->
+            <div>
+              <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">High In</label>
+              <select id="nutrient-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Nutrients</option>
+                <option value="fiber">Fiber</option>
+                <option value="protein">Protein</option>
+                <option value="calcium">Calcium</option>
+                <option value="iron">Iron</option>
+                <option value="vitaminC">Vitamin C</option>
+                <option value="omega3">Omega-3s</option>
+                <option value="antioxidants">Antioxidants</option>
+                <option value="potassium">Potassium</option>
+              </select>
+            </div>
+            <!-- Body System Filter -->
+            <div>
+              <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Body System</label>
+              <select id="system-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Systems</option>
+                <option value="gut">🦠 Gut Health</option>
+                <option value="hormones">⚖️ Hormones</option>
+                <option value="energy">⚡ Energy</option>
+                <option value="heart">❤️ Heart Health</option>
+                <option value="brain">🧠 Brain Health</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- Food Grid -->
+        <div id="food-grid" class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Foods will be rendered here -->
+        </div>
+        <!-- Results Count -->
+        <div class="max-w-6xl mx-auto mt-8 text-center">
+          <p id="results-count" class="text-sm" style="color: #7a7970;"></p>
+        </div>
+      </div>
+    </div>
+    <!-- Goals Page -->
+    <div id="goals-page" class="hidden min-h-full w-full p-6 md:p-10">
+      <div class="max-w-6xl mx-auto">
+        <!-- Goals Header -->
+        <header class="mb-8">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: #9ca583;">
+              <span class="text-6xl">🎯</span>
+            </div>
+            <div>
+              <h1 class="text-4xl font-bold" style="color: #2d2d24;">Targeted Nutrition</h1>
+              <p class="text-base" style="color: #7a7970;">Select a health goal and discover ranked foods with detailed benefits</p>
+            </div>
+          </div>
+        </header>
+        <!-- Goals Selection Grid -->
+        <div id="goals-selection" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          <button onclick="selectGoal('low-energy')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 0ms;">
+            <span class="text-4xl mb-3 block">⚡</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Low Energy</h3>
+            <p class="text-sm" style="color: #7a7970;">Feeling tired or sluggish</p>
+          </button>
+          <button onclick="selectGoal('bloating')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 30ms;">
+            <span class="text-4xl mb-3 block">🦠</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Bloating</h3>
+            <p class="text-sm" style="color: #7a7970;">Digestive discomfort</p>
+          </button>
+          <button onclick="selectGoal('hormone-support')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 60ms;">
+            <span class="text-4xl mb-3 block">⚖️</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Hormone Support</h3>
+            <p class="text-sm" style="color: #7a7970;">Balance and regulation</p>
+          </button>
+          <button onclick="selectGoal('brain-fog')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 90ms;">
+            <span class="text-4xl mb-3 block">🧠</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Brain Fog</h3>
+            <p class="text-sm" style="color: #7a7970;">Clarity and focus</p>
+          </button>
+          <button onclick="selectGoal('bone-support')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 120ms;">
+            <span class="text-4xl mb-3 block">🦴</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Bone Support</h3>
+            <p class="text-sm" style="color: #7a7970;">Strength and density</p>
+          </button>
+          <button onclick="selectGoal('heart-support')" class="p-6 rounded-xl text-left transition-all hover:shadow-lg hover:scale-105 animate-fade-in" style="background: white; border: 2px solid #e8e5df; animation-delay: 150ms;">
+            <span class="text-4xl mb-3 block">❤️</span>
+            <h3 class="font-bold text-lg" style="color: #2d2d24;">Heart Support</h3>
+            <p class="text-sm" style="color: #7a7970;">Cardiovascular health</p>
+          </button>
+        </div>
+        <!-- Goal Results (Hidden until goal selected) -->
+        <div id="goal-results" class="hidden">
+          <!-- Goal Title -->
+          <div class="mb-8 p-6 rounded-xl" style="background: white; border-left: 4px solid #9ca583;">
+            <div class="flex items-center gap-3 mb-2">
+              <span id="result-emoji" class="text-5xl"></span>
+              <h2 id="result-title" class="text-3xl font-bold" style="color: #2d2d24;"></h2>
+            </div>
+            <p id="result-description" class="text-base" style="color: #7a7970;"></p>
+          </div>
+          <!-- Key Nutrients Section -->
+          <div class="mb-8">
+            <h3 class="font-bold text-xl mb-4" style="color: #2d2d24;">Key Nutrients That Support This Goal</h3>
+            <div id="nutrients-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+          </div>
+          <!-- Recommended Foods Section (Ranked) -->
+          <div class="mb-8">
+            <h3 class="font-bold text-xl mb-4" style="color: #2d2d24;">Ranked Foods for This Goal</h3>
+            <div id="recommended-foods" class="space-y-4"></div>
+          </div>
+          <!-- Disclaimer -->
+          <div class="p-6 rounded-xl" style="background: #faf8f3; border: 2px dashed #e8e5df;">
+            <p class="text-xs font-semibold mb-2" style="color: #9ca583;">📋 EDUCATIONAL DISCLAIMER</p>
+            <p class="text-sm" style="color: #7a7970;">This information is for educational purposes only and should not replace professional medical advice. Always consult with a healthcare provider before making significant dietary changes, especially if you have existing health conditions or take medications. Individual nutritional needs vary based on age, sex, activity level, and health status.</p>
+          </div>
+          <!-- Back Button -->
+          <div class="mt-8 text-center">
+            <button onclick="backToGoalSelection()" class="px-6 py-3 rounded-lg font-semibold transition-all" style="background: #9ca583; color: white;">
+              ← Choose Another Goal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.6);">
+      <div class="w-full max-w-2xl max-h-[90%] overflow-auto rounded-2xl" style="background: white; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div id="modal-content"></div>
+      </div>
+    </div>
+    <!-- Add Food Modal -->
+    <div id="add-food-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.6);">
+      <div class="w-full max-w-2xl max-h-[90%] overflow-auto rounded-2xl" style="background: white; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold" style="color: #2d2d24;">Add New Food</h2>
+            <button onclick="closeAddFoodModal()" class="p-2 rounded-lg transition-colors hover:opacity-80" style="background: #f5f5f5;">
+              <svg class="w-6 h-6" fill="none" stroke="#2d2d24" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="mb-6 p-4 rounded-lg" style="background: #faf8f3; border: 1px solid #e8e5df;">
+            <p class="text-xs" style="color: #7a7970;">💾 <strong>Temporary:</strong> This food will be saved in memory only. Refresh the page to reset.</p>
+          </div>
+          <form id="add-food-form" onsubmit="submitAddFood(event)" class="space-y-6">
+            <!-- Basic Info Section -->
+            <div>
+              <h3 class="font-bold text-lg mb-4" style="color: #2d2d24;">Basic Information</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Food Name *</label>
+                  <input type="text" id="food-name" placeholder="e.g., Apple" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Emoji</label>
+                  <input type="text" id="food-emoji" placeholder="🍎" maxlength="2" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Category *</label>
+                  <select id="food-category" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" class="w-full px-4 py-2 rounded-lg" required>
+                    <option value="">Select category</option>
+                    <option value="fruits">Fruits</option>
+                    <option value="vegetables">Vegetables</option>
+                    <option value="proteins">Proteins</option>
+                    <option value="grains">Grains</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="nuts">Nuts & Seeds</option>
+                    <option value="legumes">Legumes</option>
+                    <option value="oils">Oils & Condiments</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Serving Size *</label>
+                  <input type="text" id="food-serving" placeholder="e.g., 1 medium (182g)" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" required>
+                </div>
+              </div>
+            </div>
+            <!-- Macronutrients Section -->
+            <div>
+              <h3 class="font-bold text-lg mb-4" style="color: #2d2d24;">Macronutrients</h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Calories *</label>
+                  <input type="number" id="food-calories" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Protein (g)</label>
+                  <input type="number" id="food-protein" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Carbs (g)</label>
+                  <input type="number" id="food-carbs" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Fat (g)</label>
+                  <input type="number" id="food-fat" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Fiber (g)</label>
+                  <input type="number" id="food-fiber" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Sugar (g)</label>
+                  <input type="number" id="food-sugar" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+              </div>
+            </div>
+            <!-- Micronutrients Section -->
+            <div>
+              <h3 class="font-bold text-lg mb-4" style="color: #2d2d24;">Micronutrients</h3>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Vitamin C (mg)</label>
+                  <input type="number" id="food-vitaminC" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Potassium (mg)</label>
+                  <input type="number" id="food-potassium" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Vitamin A (µg)</label>
+                  <input type="number" id="food-vitaminA" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Iron (mg)</label>
+                  <input type="number" id="food-iron" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Calcium (mg)</label>
+                  <input type="number" id="food-calcium" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Magnesium (mg)</label>
+                  <input type="number" id="food-magnesium" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Zinc (mg)</label>
+                  <input type="number" id="food-zinc" placeholder="0" step="0.1" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+              </div>
+            </div>
+            <!-- Tags Section -->
+            <div>
+              <h3 class="font-bold text-lg mb-4" style="color: #2d2d24;">Tags & Details</h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Supports (comma-separated)</label>
+                  <input type="text" id="food-tags" placeholder="e.g., energy, brain, heart" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Health Benefits (comma-separated)</label>
+                  <input type="text" id="food-benefits" placeholder="e.g., Boosts energy, Supports heart health" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Pairing Tips (comma-separated)</label>
+                  <input type="text" id="food-pairingTips" placeholder="e.g., Pair with nuts for sustained energy" class="w-full px-4 py-2 rounded-lg" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                </div>
+              </div>
+            </div>
+            <!-- Form Actions -->
+            <div class="flex gap-3 pt-4">
+              <button type="submit" class="flex-1 px-6 py-3 rounded-lg font-semibold transition-all hover:opacity-90" style="background: #9ca583; color: white; border: none; cursor: pointer;">
+                Add Food
+              </button>
+              <button type="button" onclick="closeAddFoodModal()" class="flex-1 px-6 py-3 rounded-lg font-semibold transition-all" style="background: #f5f5f5; color: #2d2d24; border: 2px solid #e8e5df; cursor: pointer;">
+                Cancel
+              </button>
+            </div>
+            <div id="form-error" class="p-4 rounded-lg" style="background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; display: none;">
+              <p id="error-message" class="font-semibold"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Theme configuration - SINGLE SOURCE OF TRUTH
+    const themes = {
+      light: {
+        wrapper: '#faf8f3',
+        navBar: '#faf8f3',
+        surface: '#ffffff',
+        text: '#2d2d24',
+        textSecondary: '#7a7970',
+        border: '#e8e5df',
+        input: '#ffffff',
+        inputText: '#2d2d24',
+        modalBg: '#ffffff'
+      },
+      dark: {
+        wrapper: '#0f172a',
+        navBar: '#0f172a',
+        surface: '#1e293b',
+        text: '#f8fafc',
+        textSecondary: '#cbd5e1',
+        border: '#334155',
+        input: '#1e293b',
+        inputText: '#f8fafc',
+        modalBg: '#1e293b'
+      }
+    };
+    let isDark = localStorage.getItem('darkMode') === 'true';
+    let currentTheme = isDark ? themes.dark : themes.light;
+    function getTheme() {
+      return currentTheme;
+    }
+    function updateInputBorder() {
+      const input = document.getElementById('search-input');
+      input.style.borderColor = getTheme().border;
+    }
+    function toggleDarkMode() {
+      isDark = !isDark;
+      currentTheme = isDark ? themes.dark : themes.light;
+      localStorage.setItem('darkMode', isDark);
+      applyTheme();
+    }
+    function applyTheme() {
+      const theme = getTheme();
+
+      // Update toggle button
+      const toggleBtn = document.getElementById('dark-mode-toggle');
+      const toggleIcon = document.getElementById('toggle-icon');
+      const toggleText = document.getElementById('toggle-text');
+
+      if (isDark) {
+        toggleIcon.textContent = '☀️';
+        toggleText.textContent = 'Light';
+      } else {
+        toggleIcon.textContent = '🌙';
+        toggleText.textContent = 'Dark';
+      }
+
+      // App wrapper background
+      const appWrapper = document.getElementById('app-wrapper');
+      appWrapper.style.background = theme.wrapper;
+
+      // Navigation bar background and toggle button
+      const navBar = document.querySelector('.sticky');
+      navBar.style.background = theme.navBar;
+      navBar.style.borderBottomColor = theme.border;
+      toggleBtn.style.background = theme.surface;
+      toggleBtn.style.color = theme.text;
+      toggleBtn.style.borderColor = theme.border;
+
+      // Tab buttons - update based on active state
+      const tabExplorer = document.getElementById('tab-explorer');
+      const tabGoals = document.getElementById('tab-goals');
+      if (!document.getElementById('explorer-page').classList.contains('hidden')) {
+        tabExplorer.style.background = theme.surface;
+        tabExplorer.style.color = '#9ca583';
+        tabExplorer.style.borderTopColor = '#9ca583';
+        tabGoals.style.background = 'transparent';
+        tabGoals.style.color = theme.textSecondary;
+        tabGoals.style.borderTopColor = 'transparent';
+      } else {
+        tabGoals.style.background = theme.surface;
+        tabGoals.style.color = '#9ca583';
+        tabGoals.style.borderTopColor = '#9ca583';
+        tabExplorer.style.background = 'transparent';
+        tabExplorer.style.color = theme.textSecondary;
+        tabExplorer.style.borderTopColor = 'transparent';
+      }
+
+      // Update all direct text colors
+      document.getElementById('app-title').style.color = theme.text;
+      document.getElementById('app-subtitle').style.color = theme.textSecondary;
+
+      // Update all labels
+      document.querySelectorAll('label').forEach(label => {
+        label.style.color = theme.text;
+      });
+
+      // Update all headings
+      document.querySelectorAll('h1, h2, h3, h4').forEach(h => {
+        h.style.color = theme.text;
+      });
+
+      // Results count
+      const resultsCount = document.getElementById('results-count');
+      if (resultsCount) resultsCount.style.color = theme.textSecondary;
+
+      // Input fields and selects - update ALL
+      document.querySelectorAll('input, select').forEach(input => {
+        input.style.background = theme.input;
+        input.style.color = theme.inputText;
+        input.style.borderColor = theme.border;
+      });
+
+      // Modal background
+      const modal = document.getElementById('detail-modal');
+      const modalWrapper = modal.querySelector('div:not(#modal-content)');
+      if (modalWrapper) {
+        modalWrapper.style.background = theme.modalBg;
+      }
+      const addFoodModal = document.getElementById('add-food-modal');
+      const addFoodModalWrapper = addFoodModal.querySelector('div:not(#add-food-form)');
+      if (addFoodModalWrapper && addFoodModalWrapper.parentElement === addFoodModal) {
+        addFoodModal.querySelector('div > div').style.background = theme.modalBg;
+      }
+
+      // Re-render grid and goals to update colors
+      renderFoodGrid();
+      updateGoalsPageTheme();
+    }
+    function updateGoalsPageTheme() {
+      const theme = getTheme();
+
+      // Goals selection buttons
+      document.querySelectorAll('#goals-selection button').forEach(btn => {
+        btn.style.background = theme.surface;
+        btn.style.borderColor = theme.border;
+        const h3 = btn.querySelector('h3');
+        const p = btn.querySelector('p');
+        if (h3) h3.style.color = theme.text;
+        if (p) p.style.color = theme.textSecondary;
+      });
+
+      // Goal results section
+      const goalResultsBox = document.querySelector('#goal-results > div:nth-child(1)');
+      if (goalResultsBox) {
+        goalResultsBox.style.background = theme.surface;
+        goalResultsBox.style.borderLeftColor = '#9ca583';
+        const resultTitle = goalResultsBox.querySelector('h2');
+        const resultDesc = goalResultsBox.querySelector('p');
+        if (resultTitle) resultTitle.style.color = theme.text;
+        if (resultDesc) resultDesc.style.color = theme.textSecondary;
+      }
+
+      // Nutrient boxes
+      document.querySelectorAll('#nutrients-list > div').forEach(nutrient => {
+        nutrient.style.background = theme.surface;
+        nutrient.style.borderColor = theme.border;
+        const p = nutrient.querySelector('p');
+        if (p) p.style.color = theme.textSecondary;
+      });
+
+      // Recommended foods boxes
+      document.querySelectorAll('#recommended-foods > div').forEach(food => {
+        food.style.background = theme.surface;
+        food.style.borderColor = theme.border;
+        const h4 = food.querySelector('h4');
+        if (h4) h4.style.color = theme.text;
+        const ps = food.querySelectorAll('p');
+        ps.forEach(p => {
+          if (p.classList.contains('food-rank')) p.style.color = '#9ca583';
+          else p.style.color = theme.textSecondary;
+        });
+      });
+
+      // Disclaimer
+      const disclaimer = document.querySelector('#goal-results > div:nth-last-child(2)');
+      if (disclaimer) {
+        disclaimer.style.background = theme.wrapper;
+        disclaimer.style.borderColor = theme.border;
+        const title = disclaimer.querySelector('p:first-child');
+        const desc = disclaimer.querySelector('p:last-child');
+        if (title) title.style.color = '#9ca583';
+        if (desc) desc.style.color = theme.textSecondary;
+      }
+    }
+    // Goal tag mappings for UI display
+    const goalIcons = {
+      'hormones': '⚖️',
+      'gut': '🦠',
+      'energy': '⚡',
+      'heart': '❤️',
+      'brain': '🧠',
+      'bone': '🦴',
+      'skin': '✨'
+    };
+    const goalLabels = {
+      'hormones': 'Hormones',
+      'gut': 'Gut Health',
+      'energy': 'Energy',
+      'heart': 'Heart',
+      'brain': 'Brain',
+      'bone': 'Bone',
+      'skin': 'Skin'
+    };
+    // Goal-specific data with detailed nutrition info
+    const goalsData = {
+      'low-energy': {
+        emoji: '⚡',
+        title: 'Low Energy',
+        description: 'Combat fatigue and boost your vitality with nutrient-dense foods rich in B vitamins, iron, and sustained carbohydrates.',
+        nutrients: [
+          'Iron - Carries oxygen to cells for energy production',
+          'B Vitamins - Convert food into usable energy',
+          'Complex Carbs - Provide sustained glucose release',
+          'Magnesium - Essential for ATP energy synthesis',
+          'Protein - Stabilizes blood sugar and energy levels'
+        ],
+        tags: ['energy']
+      },
+      'bloating': {
+        emoji: '🦠',
+        title: 'Bloating',
+        description: 'Support digestive comfort with probiotic-rich foods, high-fiber options, and gut-soothing nutrients.',
+        nutrients: [
+          'Fiber - Feeds beneficial gut bacteria and aids digestion',
+          'Probiotics - Support healthy gut microbiome balance',
+          'Ginger - Natural digestive enzyme and anti-inflammatory',
+          'Magnesium - Promotes smooth muscle relaxation',
+          'Enzymes - Help break down food efficiently'
+        ],
+        tags: ['gut']
+      },
+      'hormone-support': {
+        emoji: '⚖️',
+        title: 'Hormone Support',
+        description: 'Nourish your endocrine system with foods containing phytoestrogens, healthy fats, and hormone-regulating minerals.',
+        nutrients: [
+          'Phytoestrogens - Plant compounds that mimic estrogen',
+          'Healthy Fats - Essential for hormone production',
+          'Zinc - Crucial for reproductive hormone balance',
+          'Selenium - Supports thyroid hormone metabolism',
+          'Iodine - Regulates thyroid function'
+        ],
+        tags: ['hormones']
+      },
+      'brain-fog': {
+        emoji: '🧠',
+        title: 'Brain Fog',
+        description: 'Enhance mental clarity with omega-3s, antioxidants, and nutrients that support cognitive function and blood flow.',
+        nutrients: [
+          'Omega-3 Fatty Acids - Build brain cell membranes and reduce inflammation',
+          'Antioxidants - Protect brain cells from oxidative damage',
+          'Choline - Supports neurotransmitter production for memory',
+          'B Vitamins - Essential for brain energy and focus',
+          'Polyphenols - Enhance blood flow to the brain'
+        ],
+        tags: ['brain']
+      },
+      'bone-support': {
+        emoji: '🦴',
+        title: 'Bone Support',
+        description: 'Strengthen your skeletal system with calcium, vitamin K, magnesium, and nutrients that support bone density.',
+        nutrients: [
+          'Calcium - Primary mineral for bone structure and strength',
+          'Vitamin K - Activates proteins that bind calcium to bone',
+          'Magnesium - Works with calcium for bone mineralization',
+          'Vitamin D - Enhances calcium absorption in the intestines',
+          'Phosphorus - Works alongside calcium for bone density'
+        ],
+        tags: ['bone']
+      },
+      'heart-support': {
+        emoji: '❤️',
+        title: 'Heart Support',
+        description: 'Protect cardiovascular health with omega-3s, potassium, fiber, and heart-healthy antioxidants.',
+        nutrients: [
+          'Omega-3 Fatty Acids - Reduce inflammation and support heart rhythm',
+          'Potassium - Regulates blood pressure and heart function',
+          'Soluble Fiber - Helps lower cholesterol levels',
+          'Polyphenols - Antioxidants that protect heart tissue',
+          'Nitrates - Improve blood vessel flexibility and blood flow'
+        ],
+        tags: ['heart']
+      }
+    };
+    // Comprehensive database with enhanced goal-specific details
+    const foodDatabase = [
+  {
+    "id": 1,
+    "name": "Apple",
+    "emoji": "🍎",
+    "category": "fruits",
+    "tags": [
+      "gut",
+      "heart",
+      "energy"
+    ],
+    "serving": "1 medium (182g)",
+    "calories": 95,
+    "protein": 0.5,
+    "carbs": 25,
+    "fat": 0.3,
+    "fiber": 4.4,
+    "sugar": 19,
+    "vitaminC": 14,
+    "potassium": 195,
+    "vitaminA": 5,
+    "iron": 0.2,
+    "calcium": 11,
+    "magnesium": 9,
+    "zinc": 0.1,
+    "benefits": [
+      "Supports digestive health",
+      "Helps manage cholesterol",
+      "Promotes stable blood sugar"
+    ],
+    "pairingTips": [
+      "Eat with skin for maximum fiber",
+      "Pair with nuts for sustained energy"
+    ],
+    "goalDetails": {
+      "energy": {
+        "relevanceScore": 65,
+        "primaryBenefits": [
+          "Steady energy release through natural sugars and fiber",
+          "B vitamins support nutrient metabolism"
+        ],
+        "keyNutrients": [
+          "Fiber (soluble & insoluble)",
+          "Natural carbs for glucose",
+          "Potassium"
+        ],
+        "mechanism": "Pectin in apples is a soluble fiber that slows stomach emptying, creating sustained glucose release. This prevents energy crashes and maintains stable blood sugar for consistent energy levels throughout the day.",
+        "bestUseCases": [
+          "Mid-morning snack to prevent afternoon fatigue",
+          "Post-exercise for glycogen replenishment",
+          "With protein to extend satiety"
+        ],
+        "synergy": "Pair with almond butter: almonds provide sustained fats and protein that slow apple's sugar absorption, creating prolonged, stable energy without spikes.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "gut": {
+        "relevanceScore": 90,
+        "primaryBenefits": [
+          "High pectin feeds beneficial bacteria",
+          "Promotes gentle, regular digestion",
+          "Anti-inflammatory compounds support gut lining"
+        ],
+        "keyNutrients": [
+          "Pectin (prebiotic fiber)",
+          "Polyphenols",
+          "Organic acids"
+        ],
+        "mechanism": "Apple pectin acts as a prebiotic—it passes undigested to the colon where beneficial bacteria (especially Bifidobacteria) ferment it, producing short-chain fatty acids that nourish the gut lining and reduce inflammation. This supports a healthy microbiome and improves digestive comfort.",
+        "bestUseCases": [
+          "Daily consumption for microbiome balance",
+          "During digestive discomfort or bloating",
+          "As part of gradual fiber increase (to avoid temporary gas)"
+        ],
+        "synergy": "Combine with yogurt or kefir: live probiotics + apple pectin create a synergistic prebiotic-probiotic duo that strengthens gut health more effectively than either alone.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 85,
+        "primaryBenefits": [
+          "Pectin helps lower cholesterol levels",
+          "Polyphenols reduce arterial plaque formation",
+          "Potassium supports healthy blood pressure"
+        ],
+        "keyNutrients": [
+          "Soluble pectin fiber",
+          "Polyphenols (quercetin)",
+          "Potassium"
+        ],
+        "mechanism": "Pectin binds to bile acids in the intestines, forcing the body to produce new bile from cholesterol—effectively lowering serum cholesterol. Additionally, apple polyphenols have antioxidant and anti-inflammatory effects that help prevent LDL oxidation, the first step in arterial plaque formation.",
+        "bestUseCases": [
+          "Regular daily consumption for cholesterol management",
+          "Part of heart-healthy dietary pattern",
+          "For those with mild lipid concerns"
+        ],
+        "synergy": "Eat with walnuts: walnuts add additional omega-3s and polyphenols that work synergistically with apple compounds to further support cardiovascular health.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 70,
+        "primaryBenefits": [
+          "Vitamin C supports collagen synthesis",
+          "Antioxidants combat free radical damage",
+          "Hydration from natural water content"
+        ],
+        "keyNutrients": [
+          "Vitamin C (ascorbic acid)",
+          "Polyphenols",
+          "Water (86% of apple)"
+        ],
+        "mechanism": "Vitamin C is essential for collagen cross-linking—without adequate C, collagen breaks down faster than it's built, leading to wrinkles and sagging. Apple polyphenols also scavenge free radicals that damage skin cells and accelerate aging.",
+        "bestUseCases": [
+          "Part of daily antioxidant intake",
+          "Particularly beneficial for those with oxidative stress or sun exposure",
+          "Supporting natural collagen production"
+        ],
+        "synergy": "Pair with dark leafy greens: greens add lutein and zeaxanthin (antioxidants) plus additional vitamin C and phytonutrients that amplify skin protection.",
+        "evidence": "Supported by emerging research"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "name": "Banana",
+    "emoji": "🍌",
+    "category": "fruits",
+    "tags": [
+      "heart",
+      "energy",
+      "hormones"
+    ],
+    "serving": "1 medium (118g)",
+    "calories": 105,
+    "protein": 1.3,
+    "carbs": 27,
+    "fat": 0.4,
+    "fiber": 3.1,
+    "sugar": 14,
+    "vitaminC": 10,
+    "potassium": 422,
+    "vitaminA": 3,
+    "iron": 0.3,
+    "calcium": 6,
+    "magnesium": 34,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports heart function",
+      "Boosts energy naturally",
+      "Aids muscle recovery"
+    ],
+    "pairingTips": [
+      "Eat slightly green for more resistant starch",
+      "Combine with protein for post-workout recovery"
+    ],
+    "goalDetails": {
+      "energy": {
+        "relevanceScore": 95,
+        "primaryBenefits": [
+          "Quick and sustained energy through dual carbohydrate types",
+          "Magnesium enables ATP energy production",
+          "B6 facilitates amino acid metabolism for sustained fuel"
+        ],
+        "keyNutrients": [
+          "Fast carbs (glucose, fructose)",
+          "Resistant starch (when slightly green)",
+          "Magnesium",
+          "Vitamin B6"
+        ],
+        "mechanism": "Bananas contain both simple carbs (for immediate glucose spike) and resistant starch (especially in greener bananas), providing a two-phase energy release. The high magnesium content is critical—it activates ATP synthase, the enzyme that produces cellular energy currency (ATP). This combination prevents the \"energy crash\" common with sugary foods alone.",
+        "bestUseCases": [
+          "Pre-workout for immediate energy boost",
+          "Post-workout for glycogen replenishment and muscle recovery",
+          "Afternoon pick-me-up when energy dips"
+        ],
+        "synergy": "Combine with Greek yogurt: protein slows carb digestion while banana's B6 and magnesium work synergistically with yogurt's amino acids to maximize muscle recovery and sustained energy.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "High potassium regulates blood pressure",
+          "Low sodium supports healthy fluid balance",
+          "Fiber helps manage cholesterol"
+        ],
+        "keyNutrients": [
+          "Potassium (422mg)",
+          "Magnesium",
+          "Vitamin B6",
+          "Soluble fiber"
+        ],
+        "mechanism": "Potassium counteracts sodium's effect on blood pressure by regulating vascular tone and fluid balance. In the kidneys, potassium reduces sodium reabsorption, helping to excrete excess sodium while maintaining healthy blood volume. This is especially important for vascular health and heart rate regulation.",
+        "bestUseCases": [
+          "Daily consumption for blood pressure management",
+          "Particularly important for those with high sodium intake",
+          "Supporting overall cardiovascular wellness"
+        ],
+        "synergy": "Pair with dark chocolate: chocolate's polyphenols (especially flavonoids) enhance vasodilation, working synergistically with banana's potassium to support healthy blood pressure and blood flow.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "hormones": {
+        "relevanceScore": 72,
+        "primaryBenefits": [
+          "Vitamin B6 is essential for estrogen metabolism",
+          "Magnesium supports hormone production pathways",
+          "Supports neurotransmitter balance"
+        ],
+        "keyNutrients": [
+          "Vitamin B6 (pyridoxine)",
+          "Magnesium",
+          "Tryptophan (amino acid precursor)"
+        ],
+        "mechanism": "B6 acts as a coenzyme in estrogen metabolism—the liver uses B6 to inactivate and excrete excess estrogen. Low B6 can lead to estrogen dominance and its associated symptoms (bloating, mood changes, fatigue). Magnesium is needed for progesterone production and is often depleted in high-stress individuals.",
+        "bestUseCases": [
+          "For those with hormone-related fatigue or mood changes",
+          "Part of cycle syncing nutrition (luteal phase)",
+          "Supporting neurotransmitter production (serotonin)"
+        ],
+        "synergy": "Combine with seeds (pumpkin/sunflower): seeds provide additional zinc and magnesium, creating a potent hormone-supporting combination that addresses multiple pathways of hormone metabolism.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 3,
+    "name": "Orange",
+    "emoji": "🍊",
+    "category": "fruits",
+    "tags": [
+      "brain",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 medium (131g)",
+    "calories": 62,
+    "protein": 1.2,
+    "carbs": 15,
+    "fat": 0.2,
+    "fiber": 3.1,
+    "sugar": 12,
+    "vitaminC": 70,
+    "potassium": 237,
+    "vitaminA": 11,
+    "iron": 0.1,
+    "calcium": 52,
+    "magnesium": 13,
+    "zinc": 0.1,
+    "benefits": [
+      "Strengthens immune system",
+      "Supports collagen production",
+      "Protects against oxidative stress"
+    ],
+    "pairingTips": [
+      "Eat whole fruit rather than juice to retain fiber",
+      "Vitamin C enhances iron absorption from other foods"
+    ],
+    "goalDetails": {
+      "skin": {
+        "relevanceScore": 95,
+        "primaryBenefits": [
+          "Vitamin C drives collagen synthesis",
+          "Antioxidants prevent cellular aging",
+          "Hydration supports skin elasticity"
+        ],
+        "keyNutrients": [
+          "Vitamin C (70mg per orange)",
+          "Flavonoids",
+          "Carotenoids"
+        ],
+        "mechanism": "Vitamin C is a critical cofactor for prolyl and lysyl hydroxylase, enzymes that stabilize and cross-link collagen molecules. Without adequate C, collagen is structurally weak and vulnerable to breakdown. Additionally, C is a primary antioxidant—it neutralizes free radicals that damage collagen and elastin fibers.",
+        "bestUseCases": [
+          "Daily consumption for cumulative collagen building",
+          "Particularly important for sun-exposed skin",
+          "Supporting natural anti-aging processes"
+        ],
+        "synergy": "Combine with green tea: EGCG in green tea enhances collagen production while orange's vitamin C acts synergistically to increase the bioavailability and efficacy of these collagen-supporting compounds.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "brain": {
+        "relevanceScore": 78,
+        "primaryBenefits": [
+          "Vitamin C protects brain from oxidative damage",
+          "Flavonoids enhance cerebral blood flow",
+          "Carbs provide glucose for cognitive function"
+        ],
+        "keyNutrients": [
+          "Vitamin C (antioxidant)",
+          "Flavonoids (hesperidin, naringenin)",
+          "Natural carbohydrates"
+        ],
+        "mechanism": "The brain is highly vulnerable to oxidative stress due to high oxygen metabolism and abundant polyunsaturated fats. Vitamin C is one of the primary antioxidants protecting brain tissue. Orange flavonoids also improve endothelial function in cerebral blood vessels, enhancing oxygen and nutrient delivery to neurons.",
+        "bestUseCases": [
+          "Morning consumption for cognitive clarity",
+          "Supporting brain health through antioxidant protection",
+          "Particularly helpful for those with high mental stress"
+        ],
+        "synergy": "Eat with walnuts or almonds: nuts provide additional antioxidants and healthy fats (DHA precursors) that work synergistically with orange's vitamin C and flavonoids to protect brain tissue.",
+        "evidence": "Supported by emerging research"
+      },
+      "energy": {
+        "relevanceScore": 65,
+        "primaryBenefits": [
+          "Natural carbs provide quick energy",
+          "Vitamin C supports iron metabolism",
+          "Hydration maintains cellular function"
+        ],
+        "keyNutrients": [
+          "Simple carbohydrates",
+          "Vitamin C (iron absorption)",
+          "Water (88% of fruit)"
+        ],
+        "mechanism": "Orange's natural sugars provide rapid glucose for immediate energy. The high vitamin C content enhances the absorption of iron from plant-based foods, supporting oxygen transport and aerobic energy production. Additionally, the fruit's water content supports hydration, critical for all metabolic processes.",
+        "bestUseCases": [
+          "Morning snack for alertness",
+          "Pre-workout for quick carbs",
+          "Between meals to prevent energy crashes"
+        ],
+        "synergy": "Pair with almonds: almonds provide protein and fat that slow carb absorption, while orange's vitamin C enhances the bioavailability of almond minerals.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "name": "Blueberries",
+    "emoji": "🫐",
+    "category": "fruits",
+    "tags": [
+      "brain",
+      "skin",
+      "heart"
+    ],
+    "serving": "1 cup (148g)",
+    "calories": 84,
+    "protein": 1.1,
+    "carbs": 21,
+    "fat": 0.5,
+    "fiber": 3.6,
+    "sugar": 15,
+    "vitaminC": 14,
+    "potassium": 114,
+    "vitaminA": 3,
+    "iron": 0.3,
+    "calcium": 9,
+    "magnesium": 9,
+    "zinc": 0.3,
+    "benefits": [
+      "Enhances memory and focus",
+      "Protects brain cells",
+      "Reduces inflammation"
+    ],
+    "pairingTips": [
+      "Frozen blueberries retain anthocyanins",
+      "Consume regularly for cumulative benefits"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 98,
+        "primaryBenefits": [
+          "Anthocyanins cross blood-brain barrier and protect neurons",
+          "Reduce neuroinflammation and amyloid plaque buildup",
+          "Enhance synaptic plasticity for improved memory"
+        ],
+        "keyNutrients": [
+          "Anthocyanins (most abundant flavonoid)",
+          "Resveratrol",
+          "Vitamin C",
+          "Pterostilbene"
+        ],
+        "mechanism": "Blueberry anthocyanins are small enough to cross the blood-brain barrier, where they accumulate in memory-critical brain regions (hippocampus, prefrontal cortex). They reduce neuroinflammation by inhibiting NF-κB signaling and protect against amyloid-beta accumulation. They also enhance BDNF (brain-derived neurotrophic factor), which supports new neuron growth and synaptic connections.",
+        "bestUseCases": [
+          "Daily consumption for sustained cognitive protection",
+          "Particularly important for aging populations",
+          "Supporting memory and executive function"
+        ],
+        "synergy": "Combine with walnuts and dark chocolate: walnuts add DHA (brain structural component), while chocolate's EGCG and blueberry's anthocyanins work synergistically to maximize neuroprotection and blood flow enhancement.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 92,
+        "primaryBenefits": [
+          "Anthocyanins are potent free radical scavengers",
+          "Reduce collagen cross-linking and maintain skin elasticity",
+          "Anti-inflammatory effects calm reactive skin"
+        ],
+        "keyNutrients": [
+          "Anthocyanins (ORAC: 2400/100g)",
+          "Vitamin C",
+          "Resveratrol"
+        ],
+        "mechanism": "Blueberry anthocyanins have among the highest oxygen radical absorbance capacity (ORAC) of any food. They neutralize free radicals that damage collagen and elastin, while also reducing inflammatory cytokines that accelerate skin aging. This dual action makes them exceptionally powerful for skin protection.",
+        "bestUseCases": [
+          "Daily anti-aging regimen",
+          "Supporting skin resilience under environmental stress",
+          "Part of antioxidant-rich diet for visible skin health"
+        ],
+        "synergy": "Pair with green tea and dark chocolate: these combine multiple anthocyanin sources and polyphenols that create exponentially greater antioxidant protection than any single source alone.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 85,
+        "primaryBenefits": [
+          "Anthocyanins reduce arterial inflammation",
+          "Lower LDL oxidation and plaque formation",
+          "Improve endothelial function and blood flow"
+        ],
+        "keyNutrients": [
+          "Anthocyanins",
+          "Polyphenols",
+          "Fiber"
+        ],
+        "mechanism": "Anthocyanins reduce inflammatory markers (CRP, IL-6) that predict cardiovascular events. They also prevent LDL oxidation—the first step in plaque formation. Additionally, they enhance nitric oxide production in endothelial cells, improving vasodilation and blood flow.",
+        "bestUseCases": [
+          "Daily consumption for preventive cardiovascular health",
+          "For those with family history of heart disease",
+          "Supporting healthy cholesterol levels"
+        ],
+        "synergy": "Combine with olive oil and fish: anthocyanins work synergistically with fish omega-3s and olive oil polyphenols to comprehensively protect cardiovascular health through multiple mechanisms.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 5,
+    "name": "Strawberries",
+    "emoji": "🍓",
+    "category": "fruits",
+    "tags": [
+      "heart",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 cup (144g)",
+    "calories": 46,
+    "protein": 1,
+    "carbs": 11,
+    "fat": 0.4,
+    "fiber": 3,
+    "sugar": 7,
+    "vitaminC": 89,
+    "potassium": 220,
+    "vitaminA": 1,
+    "iron": 0.4,
+    "calcium": 24,
+    "magnesium": 13,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports cardiovascular health",
+      "Reduces inflammation",
+      "Boosts immune function"
+    ],
+    "pairingTips": [
+      "Fresh preserves more vitamin C than cooked",
+      "Pair with yogurt for probiotics"
+    ],
+    "goalDetails": {
+      "heart": {
+        "relevanceScore": 90,
+        "primaryBenefits": [
+          "High vitamin C and anthocyanins reduce arterial inflammation",
+          "Improve endothelial function and blood vessel flexibility",
+          "Support healthy cholesterol profiles"
+        ],
+        "keyNutrients": [
+          "Vitamin C (89mg)",
+          "Ellagic acid",
+          "Anthocyanins",
+          "Fiber"
+        ],
+        "mechanism": "Strawberries contain ellagic acid, an anti-inflammatory polyphenol that reduces NF-κB activation and decreases inflammatory cytokines associated with atherosclerosis. The high vitamin C and anthocyanins work synergistically to prevent LDL oxidation and maintain endothelial health, supporting healthy blood vessel function.",
+        "bestUseCases": [
+          "Daily consumption for sustained cardiovascular benefits",
+          "Particularly beneficial for those with mild inflammation",
+          "Supporting healthy lipid profiles"
+        ],
+        "synergy": "Combine with spinach and walnuts: create a salad with these strawberries, dark leafy greens, and walnuts to synergistically target multiple cardiovascular risk factors through complementary nutrient profiles.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Very high vitamin C per calorie for collagen building",
+          "Ellagic acid provides antioxidant and anti-aging effects",
+          "Salicylic acid aids in skin clarity"
+        ],
+        "keyNutrients": [
+          "Vitamin C (highest among berries)",
+          "Ellagic acid",
+          "Flavonoids",
+          "Salicylic acid"
+        ],
+        "mechanism": "Strawberries provide exceptional vitamin C density—one cup provides 89mg (148% DV), supporting robust collagen synthesis. Ellagic acid is a unique polyphenol with exceptionally high antioxidant capacity. The natural salicylic acid gently exfoliates and supports clear, smooth skin texture.",
+        "bestUseCases": [
+          "Daily for collagen support and skin clarity",
+          "For those with mixed or acne-prone skin",
+          "Supporting natural glow and resilience"
+        ],
+        "synergy": "Combine with honey and Greek yogurt: yogurt probiotics support skin microbiome while honey and strawberries' antioxidants provide comprehensive skin support from inside and out.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 72,
+        "primaryBenefits": [
+          "Low glycemic index with natural carbs for sustained energy",
+          "Vitamin C supports iron metabolism",
+          "Fiber prevents energy crashes"
+        ],
+        "keyNutrients": [
+          "Natural carbohydrates (low GI)",
+          "Vitamin C",
+          "Fiber",
+          "Manganese"
+        ],
+        "mechanism": "Strawberries have a low glycemic index despite being sweet—the high fiber content slows sugar absorption, preventing sharp glucose spikes and crashes. High vitamin C enhances iron bioavailability from accompanying foods, supporting oxygen transport and aerobic energy production.",
+        "bestUseCases": [
+          "Mid-morning snack for sustained energy",
+          "Post-workout with protein for recovery",
+          "Part of balanced meals to prevent energy crashes"
+        ],
+        "synergy": "Pair with nuts and seeds: adding almonds and pumpkin seeds creates a nutrient-complete snack with protein, healthy fats, and strawberry's carbs for balanced, sustained energy.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "name": "Avocado",
+    "emoji": "🥑",
+    "category": "fruits",
+    "tags": [
+      "heart",
+      "hormones",
+      "brain"
+    ],
+    "serving": "1 medium (201g)",
+    "calories": 322,
+    "protein": 4,
+    "carbs": 17,
+    "fat": 29,
+    "fiber": 13,
+    "sugar": 1.3,
+    "vitaminC": 20,
+    "potassium": 975,
+    "vitaminA": 7,
+    "iron": 0.6,
+    "calcium": 19,
+    "magnesium": 43,
+    "zinc": 1.3,
+    "benefits": [
+      "Supports heart health",
+      "Aids nutrient absorption",
+      "Promotes satiety"
+    ],
+    "pairingTips": [
+      "Fat content aids absorption of fat-soluble vitamins",
+      "Pair with tomatoes for synergistic benefits"
+    ],
+    "goalDetails": {
+      "heart": {
+        "relevanceScore": 95,
+        "primaryBenefits": [
+          "Monounsaturated fats improve cholesterol profiles",
+          "Potassium (975mg) significantly lowers blood pressure",
+          "Fiber helps manage LDL levels"
+        ],
+        "keyNutrients": [
+          "Monounsaturated fat (77% of total fat)",
+          "Potassium (highest food source)",
+          "Beta-sitosterol",
+          "Fiber"
+        ],
+        "mechanism": "Avocado's monounsaturated fats increase HDL (\"good\") cholesterol while reducing LDL and triglycerides. The exceptional potassium content activates Na+/K+ ATPase pumps, excreting sodium and reducing blood pressure. Beta-sitosterol (a plant sterol) actively blocks dietary cholesterol absorption, further improving lipid profiles.",
+        "bestUseCases": [
+          "Daily consumption for sustained cardiovascular health",
+          "For those with high cholesterol or mild hypertension",
+          "Supporting healthy lipid panels"
+        ],
+        "synergy": "Combine with tomatoes and olive oil: create guacamole with tomato—the lycopene in tomatoes works synergistically with avocado's healthy fats to enhance bioavailability and cardiovascular protection.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "hormones": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Healthy fats are the precursor for hormone synthesis",
+          "Magnesium supports hormone production and regulation",
+          "Potassium aids electrolyte balance for hormone transport"
+        ],
+        "keyNutrients": [
+          "Monounsaturated fats (cholesterol substrate)",
+          "Magnesium (43mg)",
+          "Potassium (975mg)",
+          "Vitamin E"
+        ],
+        "mechanism": "Hormones are synthesized from cholesterol and fats. Without adequate dietary fat, the body cannot produce sufficient estrogen, progesterone, and testosterone. Avocado's magnesium is essential for CYP11A1 and other enzymes in steroid hormone synthesis. This makes avocado foundational for hormonal health, especially for those on low-fat diets.",
+        "bestUseCases": [
+          "For those with hormone imbalances on low-fat diets",
+          "Supporting fertility and reproductive health",
+          "Addressing hormone-related mood or energy changes"
+        ],
+        "synergy": "Combine with seeds and leafy greens: add pumpkin seeds (zinc for hormone receptors) and spinach (magnesium) to avocado for a comprehensive hormone-supporting meal.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "brain": {
+        "relevanceScore": 82,
+        "primaryBenefits": [
+          "Monounsaturated fats support myelin sheath (brain insulation)",
+          "Potassium and magnesium support neuronal function",
+          "Lutein bioavailability enhanced by fat content"
+        ],
+        "keyNutrients": [
+          "Monounsaturated fats (brain structural component)",
+          "Potassium (neuronal signaling)",
+          "Magnesium (neurotransmitter release)",
+          "Lutein"
+        ],
+        "mechanism": "Brain myelin sheaths—the insulation around neuronal axons—are composed of 80% lipid. Avocado's healthy fats are incorporated into myelin, supporting rapid neural transmission. Potassium and magnesium are critical for maintaining the ion gradients that enable neural firing. Additionally, fat-soluble lutein (a carotenoid in avocado) is selectively transported to the brain for neuroprotection.",
+        "bestUseCases": [
+          "Supporting brain structure and function",
+          "Enhancing learning and memory formation",
+          "Part of diet for cognitive performance"
+        ],
+        "synergy": "Combine with omega-3 sources (fish or flax): avocado's monounsaturated fats work synergistically with omega-3 polyunsaturated fats to create optimal brain tissue composition.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 7,
+    "name": "Mango",
+    "emoji": "🥭",
+    "category": "fruits",
+    "tags": [
+      "gut",
+      "energy",
+      "skin"
+    ],
+    "serving": "1 cup (165g)",
+    "calories": 99,
+    "protein": 1.4,
+    "carbs": 25,
+    "fat": 0.6,
+    "fiber": 2.6,
+    "sugar": 23,
+    "vitaminC": 60,
+    "potassium": 277,
+    "vitaminA": 54,
+    "iron": 0.3,
+    "calcium": 11,
+    "magnesium": 18,
+    "zinc": 0.1,
+    "benefits": [
+      "Aids digestion with enzymes",
+      "Boosts immunity",
+      "Provides sustained energy"
+    ],
+    "pairingTips": [
+      "Enzyme content aids protein breakdown",
+      "Pair with spicy foods to balance heat"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Kiwi",
+    "emoji": "🥝",
+    "category": "fruits",
+    "tags": [
+      "gut",
+      "brain",
+      "skin"
+    ],
+    "serving": "2 medium (152g)",
+    "calories": 92,
+    "protein": 1.7,
+    "carbs": 22,
+    "fat": 0.6,
+    "fiber": 4.6,
+    "sugar": 14,
+    "vitaminC": 114,
+    "potassium": 474,
+    "vitaminA": 4,
+    "iron": 0.5,
+    "calcium": 52,
+    "magnesium": 17,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports digestive enzymes",
+      "May improve sleep quality",
+      "Aids serotonin production"
+    ],
+    "pairingTips": [
+      "Enzyme aids protein breakdown—great after meals",
+      "May help with sleep due to serotonin precursors"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Pineapple",
+    "emoji": "🍍",
+    "category": "fruits",
+    "tags": [
+      "gut",
+      "energy",
+      "bone"
+    ],
+    "serving": "1 cup (155g)",
+    "calories": 82,
+    "protein": 0.9,
+    "carbs": 22,
+    "fat": 0.2,
+    "fiber": 2.7,
+    "sugar": 17,
+    "vitaminC": 79,
+    "potassium": 180,
+    "vitaminA": 1,
+    "iron": 0.3,
+    "calcium": 22,
+    "magnesium": 20,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports protein digestion",
+      "Reduces inflammation",
+      "Aids tissue recovery"
+    ],
+    "pairingTips": [
+      "Fresh pineapple contains bromelain; cooked loses enzyme",
+      "Combine with collagen sources"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Broccoli",
+    "emoji": "🥦",
+    "category": "vegetables",
+    "tags": [
+      "brain",
+      "gut",
+      "bone"
+    ],
+    "serving": "1 cup (91g)",
+    "calories": 31,
+    "protein": 2.5,
+    "carbs": 6,
+    "fat": 0.3,
+    "fiber": 2.4,
+    "sugar": 1.5,
+    "vitaminC": 81,
+    "potassium": 288,
+    "vitaminA": 12,
+    "iron": 0.7,
+    "calcium": 47,
+    "magnesium": 19,
+    "zinc": 0.4,
+    "benefits": [
+      "Supports detoxification",
+      "Reduces inflammation",
+      "Strengthens bones"
+    ],
+    "pairingTips": [
+      "Steam lightly to preserve sulforaphane",
+      "Chop and let sit 5 minutes before cooking"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 90,
+        "primaryBenefits": [
+          "Sulforaphane activates neuroprotective genes",
+          "Reduces neuroinflammation and oxidative stress",
+          "Supports mitochondrial health in neurons"
+        ],
+        "keyNutrients": [
+          "Sulforaphane (isothiocyanate)",
+          "Vitamin K",
+          "Choline",
+          "Vitamin C"
+        ],
+        "mechanism": "When chewed or chopped, broccoli's glucoraphanin is converted by myrosinase enzyme to sulforaphane—a potent activator of Nrf2 transcription factor. Nrf2 turns on antioxidant response elements, producing protective enzymes like SOD and catalase. This process is particularly beneficial in the brain where oxidative stress drives neurodegeneration.",
+        "bestUseCases": [
+          "2-3 times weekly for sustained neuroprotection",
+          "Particularly helpful for aging populations",
+          "Supporting detoxification pathways"
+        ],
+        "synergy": "Combine with turmeric and black pepper: curcumin (turmeric) and piperine (black pepper) enhance sulforaphane absorption and work synergistically to activate Nrf2 pathways for maximized neuroprotection.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "gut": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Sulforaphane protects gut barrier integrity",
+          "Promotes beneficial bacteria that produce butyrate",
+          "Anti-inflammatory effects support microbiome health"
+        ],
+        "keyNutrients": [
+          "Sulforaphane",
+          "Fiber",
+          "Vitamin C"
+        ],
+        "mechanism": "Sulforaphane strengthens tight junctions in the intestinal epithelium by upregulating claudin proteins, reducing intestinal permeability (\"leaky gut\"). It also selectively promotes growth of beneficial bacteria like Akkermansia muciniphila while inhibiting pathogens. These bacteria ferment dietary fiber to produce butyrate, which nourishes the gut lining and reduces inflammation.",
+        "bestUseCases": [
+          "Regular consumption for gut barrier integrity",
+          "Particularly for those with digestive sensitivity",
+          "Supporting microbiome diversity and resilience"
+        ],
+        "synergy": "Combine with prebiotic foods like onions: broccoli's sulforaphane supports beneficial bacteria while fiber from onions feeds them, creating a synergistic environment for optimal microbiome health.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "bone": {
+        "relevanceScore": 82,
+        "primaryBenefits": [
+          "High vitamin K activates osteocalcin for calcium binding",
+          "Contains measurable calcium",
+          "Vitamin C supports collagen cross-linking"
+        ],
+        "keyNutrients": [
+          "Vitamin K1 (phylloquinone)",
+          "Calcium",
+          "Vitamin C",
+          "Magnesium"
+        ],
+        "mechanism": "Broccoli is among the highest vitamin K foods (per calorie), essential for osteocalcin activation. It also provides bioavailable calcium (though not as high as dairy, it's notable for a vegetable) and vitamin C, which is necessary for collagen Type I synthesis—the structural scaffold of bone.",
+        "bestUseCases": [
+          "3+ times weekly for bone health",
+          "Particularly important for plant-based eaters seeking bone support",
+          "Supporting healthy bone remodeling"
+        ],
+        "synergy": "Combine with tahini and lemon: tahini provides additional calcium and magnesium while lemon's vitamin C enhances calcium absorption and collagen synthesis.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 11,
+    "name": "Spinach",
+    "emoji": "🥬",
+    "category": "vegetables",
+    "tags": [
+      "brain",
+      "energy",
+      "bone"
+    ],
+    "serving": "1 cup raw (30g)",
+    "calories": 7,
+    "protein": 0.9,
+    "carbs": 1.1,
+    "fat": 0.1,
+    "fiber": 0.7,
+    "sugar": 0.1,
+    "vitaminC": 8,
+    "potassium": 167,
+    "vitaminA": 141,
+    "iron": 0.8,
+    "calcium": 30,
+    "magnesium": 24,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports eye and brain health",
+      "Promotes vascular function",
+      "Aids oxygen transport"
+    ],
+    "pairingTips": [
+      "Raw preserves folate; cook to reduce oxalates",
+      "Pair with vitamin C foods to enhance iron absorption"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 92,
+        "primaryBenefits": [
+          "Lutein and zeaxanthin accumulate in brain for cognitive protection",
+          "Folate supports neurotransmitter synthesis",
+          "Magnesium enables synaptic function"
+        ],
+        "keyNutrients": [
+          "Lutein (eye-brain protective)",
+          "Zeaxanthin",
+          "Folate (B9)",
+          "Magnesium"
+        ],
+        "mechanism": "Lutein and zeaxanthin are xanthophyll carotenoids that accumulate in brain tissue, particularly in the prefrontal cortex and anterior cingulate—regions critical for executive function and attention. They protect neural tissue from oxidative damage and neuroinflammation. Folate is essential for methylation reactions that produce neurotransmitters and repair DNA damage in neurons.",
+        "bestUseCases": [
+          "Daily consumption for cognitive support",
+          "Particularly helpful for focus and executive function",
+          "Supporting memory and information processing"
+        ],
+        "synergy": "Combine with walnuts and blueberries: walnuts' omega-3s and blueberries' anthocyanins work synergistically with spinach's lutein to create maximally protective environment for brain aging.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 85,
+        "primaryBenefits": [
+          "Iron supports oxygen transport for energy production",
+          "Magnesium enables ATP synthesis (cellular energy currency)",
+          "B vitamins facilitate energy metabolism"
+        ],
+        "keyNutrients": [
+          "Iron (heme-free but enhanced by vitamin C)",
+          "Magnesium (ATP synthesis)",
+          "Folate (energy metabolism)",
+          "B2 and B3"
+        ],
+        "mechanism": "Spinach iron, while non-heme (plant-based), is bioavailable when consumed with vitamin C, which reduces iron to its absorbable Fe2+ form. This iron is transported via transferrin to mitochondria, where it's incorporated into cytochrome c oxidase—the final enzyme in ATP production. Without adequate iron, ATP synthesis slows dramatically, causing fatigue.",
+        "bestUseCases": [
+          "Daily for sustained energy levels",
+          "Particularly important for plant-based eaters",
+          "Consumed with vitamin C source for iron enhancement"
+        ],
+        "synergy": "Pair spinach with lemon juice and chickpeas: the vitamin C in lemon enhances iron absorption while chickpeas add additional magnesium and folate, creating comprehensive energy support.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "bone": {
+        "relevanceScore": 80,
+        "primaryBenefits": [
+          "Vitamin K activates osteocalcin to bind calcium to bone matrix",
+          "Magnesium works with calcium for bone mineralization",
+          "Supports overall mineral density"
+        ],
+        "keyNutrients": [
+          "Vitamin K1 (phylloquinone)",
+          "Magnesium",
+          "Calcium",
+          "Folate"
+        ],
+        "mechanism": "Vitamin K acts as a cofactor for gamma-carboxylation of osteocalcin—a bone protein that's essential for calcium binding to the bone matrix. Without sufficient K activation, osteocalcin cannot function, and calcium cannot be properly incorporated into bone. This makes vitamin K as important as calcium for bone health, yet it's often overlooked.",
+        "bestUseCases": [
+          "Daily for bone health and density maintenance",
+          "Particularly important for post-menopausal women",
+          "Supporting healthy aging and fracture prevention"
+        ],
+        "synergy": "Combine with dairy: spinach's vitamin K works synergistically with milk's calcium to ensure calcium is activated and incorporated into bone matrix for maximum skeletal benefit.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 12,
+    "name": "Kale",
+    "emoji": "🥬",
+    "category": "vegetables",
+    "tags": [
+      "brain",
+      "gut",
+      "bone"
+    ],
+    "serving": "1 cup (67g)",
+    "calories": 33,
+    "protein": 2.2,
+    "carbs": 6,
+    "fat": 0.6,
+    "fiber": 1.3,
+    "sugar": 0.9,
+    "vitaminC": 80,
+    "potassium": 299,
+    "vitaminA": 515,
+    "iron": 1.1,
+    "calcium": 90,
+    "magnesium": 23,
+    "zinc": 0.3,
+    "benefits": [
+      "Supports detoxification pathways",
+      "Strengthens bone health",
+      "Boosts immune function"
+    ],
+    "pairingTips": [
+      "Massage kale to soften for raw consumption",
+      "Vitamin K helps calcium absorption"
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Red Bell Pepper",
+    "emoji": "🫑",
+    "category": "vegetables",
+    "tags": [
+      "heart",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 medium (119g)",
+    "calories": 31,
+    "protein": 1.2,
+    "carbs": 7.2,
+    "fat": 0.4,
+    "fiber": 2.5,
+    "sugar": 5,
+    "vitaminC": 152,
+    "potassium": 251,
+    "vitaminA": 187,
+    "iron": 0.5,
+    "calcium": 8,
+    "magnesium": 14,
+    "zinc": 0.3,
+    "benefits": [
+      "Strengthens immune system",
+      "Supports vascular health",
+      "Reduces inflammation"
+    ],
+    "pairingTips": [
+      "Raw peppers have more vitamin C than cooked",
+      "Red peppers are the ripened, most nutrient-dense stage of a bell pepper"
+    ]
+  },
+  {
+    "id": 51,
+    "name": "Green Bell Pepper",
+    "emoji": "🫑",
+    "category": "vegetables",
+    "tags": [
+      "heart",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 medium (119g)",
+    "calories": 24,
+    "protein": 1,
+    "carbs": 5.5,
+    "fat": 0.2,
+    "fiber": 2,
+    "sugar": 2.9,
+    "vitaminC": 96,
+    "potassium": 208,
+    "vitaminA": 21,
+    "iron": 0.4,
+    "calcium": 12,
+    "magnesium": 12,
+    "zinc": 0.2,
+    "benefits": [
+      "Strengthens immune system",
+      "Supports vascular health",
+      "Low calorie, high water content for hydration"
+    ],
+    "pairingTips": [
+      "Raw peppers have more vitamin C than cooked",
+      "Milder and slightly bitter compared to fully ripened red peppers"
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Carrots",
+    "emoji": "🥕",
+    "category": "vegetables",
+    "tags": [
+      "brain",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 medium (61g)",
+    "calories": 25,
+    "protein": 0.6,
+    "carbs": 6,
+    "fat": 0.1,
+    "fiber": 1.7,
+    "sugar": 2.9,
+    "vitaminC": 4,
+    "potassium": 195,
+    "vitaminA": 509,
+    "iron": 0.2,
+    "calcium": 20,
+    "magnesium": 7,
+    "zinc": 0.1,
+    "benefits": [
+      "Supports eye health and vision",
+      "Protects skin health",
+      "Boosts immune function"
+    ],
+    "pairingTips": [
+      "Cook lightly to enhance beta-carotene bioavailability",
+      "Combine with fat source for better absorption"
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Sweet Potato",
+    "emoji": "🍠",
+    "category": "vegetables",
+    "tags": [
+      "gut",
+      "energy",
+      "skin"
+    ],
+    "serving": "1 medium (114g)",
+    "calories": 103,
+    "protein": 2.3,
+    "carbs": 24,
+    "fat": 0.1,
+    "fiber": 3.8,
+    "sugar": 7,
+    "vitaminC": 22,
+    "potassium": 541,
+    "vitaminA": 961,
+    "iron": 0.5,
+    "calcium": 56,
+    "magnesium": 29,
+    "zinc": 0.3,
+    "benefits": [
+      "Stabilizes blood sugar",
+      "Supports gut microbiome",
+      "Provides sustained energy"
+    ],
+    "pairingTips": [
+      "Cook and cool to increase resistant starch",
+      "Eat skin for maximum fiber and nutrients"
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Tomato",
+    "emoji": "🍅",
+    "category": "vegetables",
+    "tags": [
+      "heart",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 medium (123g)",
+    "calories": 22,
+    "protein": 1.1,
+    "carbs": 4.8,
+    "fat": 0.2,
+    "fiber": 1.5,
+    "sugar": 3.2,
+    "vitaminC": 17,
+    "potassium": 292,
+    "vitaminA": 20,
+    "iron": 0.3,
+    "calcium": 12,
+    "magnesium": 11,
+    "zinc": 0.2,
+    "benefits": [
+      "Supports cardiovascular health",
+      "Reduces inflammation",
+      "Protects bone health"
+    ],
+    "pairingTips": [
+      "Cooked tomatoes have more bioavailable lycopene",
+      "Pair with fat to enhance lycopene absorption"
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Garlic",
+    "emoji": "🧄",
+    "category": "vegetables",
+    "tags": [
+      "heart",
+      "gut",
+      "energy"
+    ],
+    "serving": "3 cloves (9g)",
+    "calories": 13,
+    "protein": 0.6,
+    "carbs": 3,
+    "fat": 0,
+    "fiber": 0.2,
+    "sugar": 0,
+    "vitaminC": 3,
+    "potassium": 36,
+    "vitaminA": 0,
+    "iron": 0.2,
+    "calcium": 16,
+    "magnesium": 2,
+    "zinc": 0.1,
+    "benefits": [
+      "Supports immune response",
+      "Promotes heart health",
+      "Has antimicrobial properties"
+    ],
+    "pairingTips": [
+      "Chop and let sit 10 minutes to activate compounds",
+      "Raw has more potent compounds than cooked"
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Cucumber",
+    "emoji": "🥒",
+    "category": "vegetables",
+    "tags": [
+      "gut",
+      "skin",
+      "energy"
+    ],
+    "serving": "1 cup (104g)",
+    "calories": 16,
+    "protein": 0.8,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fiber": 0.5,
+    "sugar": 1.7,
+    "vitaminC": 3,
+    "potassium": 142,
+    "vitaminA": 5,
+    "iron": 0.3,
+    "calcium": 16,
+    "magnesium": 13,
+    "zinc": 0.2,
+    "benefits": [
+      "Promotes hydration and electrolyte balance",
+      "Supports connective tissue health",
+      "Aids gut bacteria diversity"
+    ],
+    "pairingTips": [
+      "Eat skin for silica content and fiber",
+      "Pair with fermented foods for gut synergy"
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Salmon",
+    "emoji": "🐟",
+    "category": "proteins",
+    "tags": [
+      "brain",
+      "heart",
+      "skin"
+    ],
+    "serving": "100g cooked",
+    "calories": 208,
+    "protein": 20,
+    "carbs": 0,
+    "fat": 13,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 363,
+    "vitaminA": 45,
+    "iron": 0.8,
+    "calcium": 12,
+    "magnesium": 27,
+    "zinc": 0.8,
+    "benefits": [
+      "Supports brain and heart health",
+      "Reduces inflammation significantly",
+      "Aids cognitive function"
+    ],
+    "pairingTips": [
+      "Wild salmon has higher omega-3s and lower mercury",
+      "Pair with antioxidant-rich vegetables"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 96,
+        "primaryBenefits": [
+          "EPA and DHA are primary brain structural components",
+          "Anti-inflammatory omega-3s reduce neuroinflammation",
+          "Support synaptic plasticity and memory formation"
+        ],
+        "keyNutrients": [
+          "EPA (eicosapentaenoic acid)",
+          "DHA (docosahexaenoic acid)",
+          "Astaxanthin (antioxidant)",
+          "Selenium"
+        ],
+        "mechanism": "DHA comprises 97% of omega-3 fats in the brain and is essential for synaptic membrane fluidity, enabling efficient neurotransmission. EPA reduces pro-inflammatory cytokines that impair cognitive function. Astaxanthin (salmon's pink color) crosses the blood-brain barrier and provides exceptional neuroprotection. This combination makes salmon one of the most brain-protective foods.",
+        "bestUseCases": [
+          "2-3 times weekly for sustained cognitive support",
+          "For mood support and neuroplasticity",
+          "Supporting memory and focus"
+        ],
+        "synergy": "Combine with dark leafy greens and berries: green's antioxidants and berries' anthocyanins work synergistically with salmon's omega-3s to create comprehensive neuroprotection.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 94,
+        "primaryBenefits": [
+          "EPA and DHA reduce triglycerides by 25-30%",
+          "Anti-inflammatory effects reduce cardiovascular disease risk",
+          "Support healthy heart rhythm through ion channel function"
+        ],
+        "keyNutrients": [
+          "EPA (highly triglyceride-lowering)",
+          "DHA",
+          "Selenium",
+          "Astaxanthin"
+        ],
+        "mechanism": "EPA and DHA reduce hepatic triglyceride synthesis and increase VLDL clearance, with meta-analyses showing 25-30% triglyceride reduction. Their anti-inflammatory effects reduce arterial plaque formation and endothelial dysfunction. Additionally, they regulate ion channels that maintain healthy heart rhythm, particularly important for arrhythmia prevention.",
+        "bestUseCases": [
+          "2-3 times weekly for cardiovascular protection",
+          "Particularly for those with elevated triglycerides",
+          "Supporting overall cardiovascular resilience"
+        ],
+        "synergy": "Combine with garlic and onions: these allium vegetables' sulfur compounds work synergistically with salmon's omega-3s to enhance anti-inflammatory and antiplatelet effects.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "DHA supports skin barrier function and hydration",
+          "EPA reduces inflammatory skin conditions",
+          "Astaxanthin provides exceptional antioxidant protection"
+        ],
+        "keyNutrients": [
+          "DHA (skin cell membrane)",
+          "EPA (anti-inflammatory)",
+          "Astaxanthin",
+          "Selenium"
+        ],
+        "mechanism": "DHA is incorporated into skin cell membranes, supporting the lipid barrier that maintains hydration and protects against environmental damage. EPA reduces inflammatory cytokines that exacerbate conditions like acne and eczema. Astaxanthin, with 6000x the antioxidant power of vitamin C, prevents photoaging and maintains skin elasticity.",
+        "bestUseCases": [
+          "Regular consumption for skin resilience and hydration",
+          "Particularly helpful for inflammatory skin conditions",
+          "Supporting natural anti-aging from within"
+        ],
+        "synergy": "Combine with orange and green tea: vitamin C and EGCG work synergistically with salmon's omega-3s and astaxanthin to maximize skin protection and collagen support.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 20,
+    "name": "Chicken Breast",
+    "emoji": "🍗",
+    "category": "proteins",
+    "tags": [
+      "energy",
+      "brain",
+      "hormones"
+    ],
+    "serving": "100g cooked",
+    "calories": 165,
+    "protein": 31,
+    "carbs": 0,
+    "fat": 3.6,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 256,
+    "vitaminA": 0,
+    "iron": 1.3,
+    "calcium": 15,
+    "magnesium": 29,
+    "zinc": 1,
+    "benefits": [
+      "Supports muscle building",
+      "Boosts metabolism",
+      "Aids post-workout recovery"
+    ],
+    "pairingTips": [
+      "Pair with vegetables to add fiber",
+      "Cook gently to preserve amino acids"
+    ]
+  },
+  {
+    "id": 21,
+    "name": "Eggs",
+    "emoji": "🥚",
+    "category": "proteins",
+    "tags": [
+      "brain",
+      "hormones",
+      "bone"
+    ],
+    "serving": "1 large (50g)",
+    "calories": 72,
+    "protein": 6.3,
+    "carbs": 0.4,
+    "fat": 5,
+    "fiber": 0,
+    "sugar": 0.2,
+    "vitaminC": 0,
+    "potassium": 69,
+    "vitaminA": 32,
+    "iron": 1.2,
+    "calcium": 28,
+    "magnesium": 5,
+    "zinc": 0.6,
+    "benefits": [
+      "Supports brain development",
+      "Promotes eye health",
+      "Aids cell membrane integrity"
+    ],
+    "pairingTips": [
+      "Consume yolk and white together",
+      "Cook gently to preserve choline"
+    ]
+  },
+  {
+    "id": 22,
+    "name": "Beef (Lean)",
+    "emoji": "🥩",
+    "category": "proteins",
+    "tags": [
+      "energy",
+      "brain",
+      "bone"
+    ],
+    "serving": "100g cooked",
+    "calories": 250,
+    "protein": 26,
+    "carbs": 0,
+    "fat": 15,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 318,
+    "vitaminA": 0,
+    "iron": 3.6,
+    "calcium": 24,
+    "magnesium": 24,
+    "zinc": 6,
+    "benefits": [
+      "Boosts energy production",
+      "Supports immune function",
+      "Builds muscle and strength"
+    ],
+    "pairingTips": [
+      "Pair with vitamin C foods to enhance iron absorption",
+      "Balance with other protein sources"
+    ]
+  },
+  {
+    "id": 23,
+    "name": "Tofu",
+    "emoji": "🧈",
+    "category": "proteins",
+    "tags": [
+      "hormones",
+      "energy",
+      "bone"
+    ],
+    "serving": "100g",
+    "calories": 76,
+    "protein": 8,
+    "carbs": 1.9,
+    "fat": 4.8,
+    "fiber": 0.3,
+    "sugar": 0.6,
+    "vitaminC": 0,
+    "potassium": 121,
+    "vitaminA": 0,
+    "iron": 5.4,
+    "calcium": 277,
+    "magnesium": 37,
+    "zinc": 1.5,
+    "benefits": [
+      "Plant-based protein source",
+      "Supports bone health",
+      "Aids hormone balance"
+    ],
+    "pairingTips": [
+      "Press tofu to remove water before cooking",
+      "Marinate to absorb flavors"
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Lentils",
+    "emoji": "🍲",
+    "category": "legumes",
+    "tags": [
+      "gut",
+      "energy",
+      "heart"
+    ],
+    "serving": "1 cup cooked (198g)",
+    "calories": 230,
+    "protein": 18,
+    "carbs": 40,
+    "fat": 0.8,
+    "fiber": 15.6,
+    "sugar": 2,
+    "vitaminC": 2,
+    "potassium": 731,
+    "vitaminA": 2,
+    "iron": 6.6,
+    "calcium": 38,
+    "magnesium": 71,
+    "zinc": 2.5,
+    "benefits": [
+      "Stabilizes blood sugar naturally",
+      "Supports gut microbiome",
+      "Boosts energy levels"
+    ],
+    "pairingTips": [
+      "Pair with vitamin C to enhance iron absorption",
+      "Combine with grains for complete amino acids"
+    ],
+    "goalDetails": {
+      "energy": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Resistant starch provides sustained glucose",
+          "Plant polyphenols enhance iron bioavailability",
+          "High iron and zinc support oxygen transport and energy"
+        ],
+        "keyNutrients": [
+          "Resistant starch (15.6g fiber)",
+          "Iron (6.6mg, though plant-based)",
+          "Zinc (2.5mg)",
+          "Polyphenols"
+        ],
+        "mechanism": "Lentils contain significant resistant starch—a type of starch that resists digestion and acts more like fiber. It passes to the colon where bacteria ferment it, producing butyrate and providing sustained glucose over hours rather than sharp spikes. The plant polyphenols in lentils (especially when cooked and cooled) facilitate iron absorption, supporting hemoglobin synthesis and oxygen transport for aerobic energy.",
+        "bestUseCases": [
+          "2-3 times weekly for sustained energy",
+          "Part of balanced meals for stable blood sugar",
+          "Particularly important for plant-based eaters"
+        ],
+        "synergy": "Combine with tomatoes and olive oil: tomato's vitamin C dramatically enhances iron bioavailability, while olive oil's fat aids polyphenol absorption—creating maximized energy support.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "gut": {
+        "relevanceScore": 94,
+        "primaryBenefits": [
+          "Exceptional fiber (15.6g) feeds beneficial bacteria",
+          "Resistant starch produces butyrate for gut lining health",
+          "Polyphenols have antimicrobial effects against pathogens"
+        ],
+        "keyNutrients": [
+          "Soluble fiber (pectin)",
+          "Insoluble fiber",
+          "Resistant starch",
+          "Polyphenols"
+        ],
+        "mechanism": "Lentils are among the highest fiber foods—one serving provides 60% of daily fiber needs. This fiber feeds beneficial bacteria like Faecalibacterium and Roseburia, which ferment it to produce butyrate. Butyrate nourishes the intestinal epithelium, maintains barrier integrity, and reduces inflammation. The polyphenols provide antimicrobial effects that suppress pathogenic bacteria.",
+        "bestUseCases": [
+          "2-3 times weekly for robust microbiome",
+          "Gradually increasing intake to avoid temporary bloating",
+          "Supporting long-term digestive health"
+        ],
+        "synergy": "Combine with fermented foods like sauerkraut: live probiotics from fermented foods work synergistically with lentil's prebiotic fiber, creating optimal conditions for microbiome diversity and resilience.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 86,
+        "primaryBenefits": [
+          "Soluble fiber reduces LDL cholesterol",
+          "Polyphenols reduce inflammatory markers",
+          "High potassium supports blood pressure"
+        ],
+        "keyNutrients": [
+          "Soluble fiber (cholesterol-lowering)",
+          "Polyphenols",
+          "Potassium (731mg)",
+          "Magnesium (71mg)"
+        ],
+        "mechanism": "Soluble fiber in lentils (primarily pectin) binds to bile acids, forcing their excretion and requiring new bile synthesis from cholesterol—effectively lowering serum cholesterol. Polyphenols reduce inflammatory cytokines (CRP, IL-6) associated with atherosclerosis. The exceptional potassium and magnesium content support vascular relaxation and healthy blood pressure regulation.",
+        "bestUseCases": [
+          "2-3 times weekly for cardiovascular health",
+          "Particularly for those with elevated cholesterol",
+          "Supporting healthy lipid and blood pressure profiles"
+        ],
+        "synergy": "Combine with garlic and olive oil: garlic's allicin compounds work synergistically with lentil's polyphenols and fiber for comprehensive cardiovascular protection through multiple mechanisms.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 25,
+    "name": "Chickpeas",
+    "emoji": "⭐",
+    "category": "legumes",
+    "tags": [
+      "gut",
+      "hormones",
+      "energy"
+    ],
+    "serving": "1 cup cooked (269g)",
+    "calories": 269,
+    "protein": 15,
+    "carbs": 45,
+    "fat": 4.3,
+    "fiber": 12,
+    "sugar": 8,
+    "vitaminC": 2,
+    "potassium": 477,
+    "vitaminA": 2,
+    "iron": 4.7,
+    "calcium": 80,
+    "magnesium": 78,
+    "zinc": 2.4,
+    "benefits": [
+      "Supports stable blood sugar",
+      "Aids microbiome health",
+      "Provides plant-based protein"
+    ],
+    "pairingTips": [
+      "Cool cooked chickpeas to increase resistant starch",
+      "Soak before cooking to reduce preparation time"
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Brown Rice",
+    "emoji": "🍚",
+    "category": "grains",
+    "tags": [
+      "energy",
+      "brain",
+      "gut"
+    ],
+    "serving": "1 cup cooked (195g)",
+    "calories": 216,
+    "protein": 5,
+    "carbs": 45,
+    "fat": 1.8,
+    "fiber": 3.5,
+    "sugar": 0.7,
+    "vitaminC": 0,
+    "potassium": 84,
+    "vitaminA": 0,
+    "iron": 0.8,
+    "calcium": 20,
+    "magnesium": 84,
+    "zinc": 1.2,
+    "benefits": [
+      "Stabilizes blood sugar naturally",
+      "Supports nervous system health",
+      "Provides sustained energy"
+    ],
+    "pairingTips": [
+      "Combine with legumes for complete protein",
+      "Cook with slightly more water for softer texture"
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Quinoa",
+    "emoji": "🌾",
+    "category": "grains",
+    "tags": [
+      "energy",
+      "bone",
+      "brain"
+    ],
+    "serving": "1 cup cooked (185g)",
+    "calories": 222,
+    "protein": 8.1,
+    "carbs": 39,
+    "fat": 3.6,
+    "fiber": 5.2,
+    "sugar": 1.6,
+    "vitaminC": 0,
+    "potassium": 318,
+    "vitaminA": 0,
+    "iron": 2.8,
+    "calcium": 31,
+    "magnesium": 118,
+    "zinc": 2,
+    "benefits": [
+      "Complete amino acid profile",
+      "Supports enzyme function",
+      "Strengthens bones"
+    ],
+    "pairingTips": [
+      "Rinse before cooking to remove bitter saponins",
+      "Fluff with fork after cooking"
+    ]
+  },
+  {
+    "id": 28,
+    "name": "Oatmeal",
+    "emoji": "🥣",
+    "category": "grains",
+    "tags": [
+      "gut",
+      "heart",
+      "energy"
+    ],
+    "serving": "1 cup cooked (234g)",
+    "calories": 158,
+    "protein": 6,
+    "carbs": 27,
+    "fat": 3.2,
+    "fiber": 4,
+    "sugar": 1.1,
+    "vitaminC": 0,
+    "potassium": 164,
+    "vitaminA": 0,
+    "iron": 4.3,
+    "calcium": 54,
+    "magnesium": 68,
+    "zinc": 4.7,
+    "benefits": [
+      "Supports cholesterol management",
+      "Promotes gut health",
+      "Aids satiety"
+    ],
+    "pairingTips": [
+      "Soluble fiber requires adequate fluid intake",
+      "Pair with berries for antioxidant synergy"
+    ]
+  },
+  {
+    "id": 29,
+    "name": "Whole Wheat Bread",
+    "emoji": "🍞",
+    "category": "grains",
+    "tags": [
+      "gut",
+      "energy",
+      "brain"
+    ],
+    "serving": "1 slice (43g)",
+    "calories": 81,
+    "protein": 4,
+    "carbs": 14,
+    "fat": 1.1,
+    "fiber": 1.9,
+    "sugar": 1.4,
+    "vitaminC": 0,
+    "potassium": 81,
+    "vitaminA": 0,
+    "iron": 1.6,
+    "calcium": 25,
+    "magnesium": 24,
+    "zinc": 0.7,
+    "benefits": [
+      "Supports digestive health",
+      "Stabilizes energy",
+      "Provides nutrient density"
+    ],
+    "pairingTips": [
+      "Pair with protein and fat for balanced meals",
+      "Choose varieties with minimal additives"
+    ]
+  },
+  {
+    "id": 30,
+    "name": "Greek Yogurt",
+    "emoji": "🥄",
+    "category": "dairy",
+    "tags": [
+      "gut",
+      "bone",
+      "energy"
+    ],
+    "serving": "1 cup (245g)",
+    "calories": 100,
+    "protein": 17,
+    "carbs": 6,
+    "fat": 0.7,
+    "fiber": 0,
+    "sugar": 4,
+    "vitaminC": 0,
+    "potassium": 240,
+    "vitaminA": 21,
+    "iron": 0.1,
+    "calcium": 300,
+    "magnesium": 20,
+    "zinc": 0.6,
+    "benefits": [
+      "Supports gut microbiome",
+      "Builds muscle",
+      "Strengthens bones"
+    ],
+    "pairingTips": [
+      "Plain yogurt without added sugar preferred",
+      "Combine with fiber for prebiotic + probiotic synergy"
+    ],
+    "goalDetails": {
+      "gut": {
+        "relevanceScore": 92,
+        "primaryBenefits": [
+          "Live probiotics restore beneficial microbiota",
+          "Lactobacillus and Bifidobacterium produce beneficial metabolites",
+          "Support intestinal barrier integrity"
+        ],
+        "keyNutrients": [
+          "Live bacterial cultures (Lactobacillus, Bifidobacterium)",
+          "Casein protein (prebiotic for specific strains)",
+          "Calcium"
+        ],
+        "mechanism": "Greek yogurt contains billions of live probiotic bacteria per serving. Lactobacillus acidophilus and Bifidobacterium longum colonize the intestine and produce short-chain fatty acids (butyrate, propionate, acetate) that nourish the gut lining and reduce inflammation. Casein acts as a prebiotic, selectively feeding beneficial strains while inhibiting pathogens.",
+        "bestUseCases": [
+          "Daily for microbiome maintenance",
+          "Particularly after antibiotic use to restore flora",
+          "Supporting digestive comfort and immune function"
+        ],
+        "synergy": "Combine with berries and granola: probiotics from yogurt combine with berries' polyphenols (which feed beneficial bacteria) and granola's fiber (prebiotic), creating comprehensive microbiome support.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 80,
+        "primaryBenefits": [
+          "High protein (17g) provides amino acids for muscle and ATP",
+          "Casein provides slow, sustained amino acid release",
+          "Calcium and phosphorus support ATP production"
+        ],
+        "keyNutrients": [
+          "Whey and casein proteins",
+          "Calcium",
+          "Phosphorus",
+          "B vitamins"
+        ],
+        "mechanism": "Greek yogurt's 17g protein per cup provides substantial amino acids for muscle synthesis (supporting metabolic rate and energy production). Casein is a slow-release protein, providing steady amino acid availability for hours—ideal for sustained energy and satiety. Calcium and phosphorus are critical cofactors in ATP synthesis pathways.",
+        "bestUseCases": [
+          "Post-workout for recovery",
+          "As breakfast to establish stable energy",
+          "Before bed for overnight muscle protein synthesis"
+        ],
+        "synergy": "Combine with granola and honey: yogurt's slow protein + granola's carbs + honey's simple sugars create optimal post-workout recovery window with sustained and immediate energy sources.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "bone": {
+        "relevanceScore": 90,
+        "primaryBenefits": [
+          "Exceptional calcium content (300mg per cup)",
+          "Protein provides amino acids for collagen scaffolding",
+          "Probiotics enhance mineral absorption"
+        ],
+        "keyNutrients": [
+          "Calcium (300mg)",
+          "Casein protein (collagen substrate)",
+          "Probiotics (mineral absorption)",
+          "Phosphorus"
+        ],
+        "mechanism": "One cup of Greek yogurt provides 23% of daily calcium needs—exceptional for a single serving. Protein provides amino acids (lysine, proline) essential for collagen synthesis, the structural matrix of bone. Probiotics produce butyrate, which enhances tight junction function in the intestine, improving calcium absorption. This comprehensive approach makes yogurt exceptionally bone-protective.",
+        "bestUseCases": [
+          "Daily for bone health maintenance",
+          "Particularly important for women and aging populations",
+          "Supporting skeletal density through lifespan"
+        ],
+        "synergy": "Combine with berries and walnuts: berries' vitamin C supports collagen, yogurt provides calcium and protein, walnuts add magnesium—creating a comprehensive bone-protective meal.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 31,
+    "name": "Milk (2%)",
+    "emoji": "🥛",
+    "category": "dairy",
+    "tags": [
+      "bone",
+      "energy",
+      "hormones"
+    ],
+    "serving": "1 cup (244ml)",
+    "calories": 122,
+    "protein": 8.1,
+    "carbs": 12,
+    "fat": 4.8,
+    "fiber": 0,
+    "sugar": 12,
+    "vitaminC": 0,
+    "potassium": 342,
+    "vitaminA": 45,
+    "iron": 0.1,
+    "calcium": 293,
+    "magnesium": 27,
+    "zinc": 0.9,
+    "benefits": [
+      "Supports bone health",
+      "Aids muscle recovery",
+      "Strengthens teeth"
+    ],
+    "pairingTips": [
+      "Vitamin D enhances calcium absorption",
+      "Consume with meals for better absorption"
+    ]
+  },
+  {
+    "id": 32,
+    "name": "Cheddar Cheese",
+    "emoji": "🧀",
+    "category": "dairy",
+    "tags": [
+      "bone",
+      "energy",
+      "brain"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 113,
+    "protein": 7,
+    "carbs": 0.4,
+    "fat": 9.3,
+    "fiber": 0,
+    "sugar": 0.1,
+    "vitaminC": 0,
+    "potassium": 28,
+    "vitaminA": 75,
+    "iron": 0.7,
+    "calcium": 202,
+    "magnesium": 8,
+    "zinc": 2.8,
+    "benefits": [
+      "Supports bone health",
+      "Strengthens immune function",
+      "Aids enzyme activity"
+    ],
+    "pairingTips": [
+      "Aged cheese has lower lactose",
+      "Use smaller amounts for flavor"
+    ]
+  },
+  {
+    "id": 33,
+    "name": "Almonds",
+    "emoji": "🥜",
+    "category": "nuts",
+    "tags": [
+      "heart",
+      "energy",
+      "skin"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 164,
+    "protein": 6,
+    "carbs": 6,
+    "fat": 14,
+    "fiber": 3.5,
+    "sugar": 1.2,
+    "vitaminC": 0,
+    "potassium": 208,
+    "vitaminA": 0,
+    "iron": 1.3,
+    "calcium": 76,
+    "magnesium": 76,
+    "zinc": 0.9,
+    "benefits": [
+      "Supports heart health",
+      "Promotes vascular function",
+      "Stabilizes blood sugar"
+    ],
+    "pairingTips": [
+      "Raw or lightly roasted preserves nutrients",
+      "Soak overnight to reduce phytic acid"
+    ],
+    "goalDetails": {
+      "heart": {
+        "relevanceScore": 89,
+        "primaryBenefits": [
+          "Monounsaturated fats improve cholesterol ratios",
+          "Arginine enhances vasodilation",
+          "Polyphenols reduce inflammatory markers"
+        ],
+        "keyNutrients": [
+          "Monounsaturated fat",
+          "Arginine (nitric oxide precursor)",
+          "Magnesium",
+          "Polyphenols"
+        ],
+        "mechanism": "Almonds are 70% monounsaturated fat, which increases HDL while reducing LDL and triglycerides. Arginine is converted to nitric oxide in endothelial cells, enhancing vascular relaxation and blood flow. The exceptional magnesium content (76mg per ounce) supports healthy blood pressure by enabling vascular smooth muscle relaxation. Polyphenols provide anti-inflammatory effects.",
+        "bestUseCases": [
+          "Daily snack (small handful) for cardiovascular health",
+          "Particularly for those with elevated lipids",
+          "Supporting sustained vascular function"
+        ],
+        "synergy": "Combine with berries: almond's polyphenols synergize with berry anthocyanins to enhance cardiovascular protection through complementary antioxidant mechanisms.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 82,
+        "primaryBenefits": [
+          "Exceptional magnesium (76mg) enables ATP energy production",
+          "Protein and fat create sustained, non-spiking energy",
+          "Fiber prevents glucose crashes"
+        ],
+        "keyNutrients": [
+          "Magnesium (ATP synthesis)",
+          "Protein (6g)",
+          "Monounsaturated fat",
+          "Fiber (3.5g)"
+        ],
+        "mechanism": "Almonds are exceptionally high in magnesium—one ounce provides 19% of daily needs. Magnesium is the cofactor for ATP synthase, the enzyme producing cellular energy currency. The combination of protein, fat, and fiber creates three-phase energy release: initial protein for satiety, fat for sustained fuel, and fiber to prevent glucose spikes.",
+        "bestUseCases": [
+          "Mid-morning or mid-afternoon snack",
+          "Pre-workout for sustained energy",
+          "Supporting energy stability throughout the day"
+        ],
+        "synergy": "Combine with apple: apple's natural carbs provide immediate glucose while almonds' protein, fat, and fiber create sustained energy—a two-phase energy profile ideal for stable energy.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 80,
+        "primaryBenefits": [
+          "Vitamin E protects skin from oxidative damage",
+          "Monounsaturated fats support skin barrier",
+          "Polyphenols provide anti-inflammatory effects"
+        ],
+        "keyNutrients": [
+          "Vitamin E (alpha-tocopherol)",
+          "Monounsaturated fat",
+          "Polyphenols"
+        ],
+        "mechanism": "Almonds are exceptionally rich in vitamin E, a fat-soluble antioxidant that accumulates in skin tissue. It protects against UV-induced free radical damage and supports skin barrier integrity. The healthy fats support subcutaneous tissue structure and skin elasticity. Polyphenols reduce skin inflammation.",
+        "bestUseCases": [
+          "Daily for cumulative skin protection",
+          "Supporting natural anti-aging from within",
+          "Part of antioxidant-rich lifestyle"
+        ],
+        "synergy": "Combine with orange: vitamin C from orange synergizes with almond's vitamin E to create comprehensive lipophilic and hydrophilic antioxidant protection in skin tissue.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 34,
+    "name": "Walnuts",
+    "emoji": "🌰",
+    "category": "nuts",
+    "tags": [
+      "brain",
+      "heart",
+      "energy"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 185,
+    "protein": 4.3,
+    "carbs": 3.9,
+    "fat": 18,
+    "fiber": 1.9,
+    "sugar": 0.7,
+    "vitaminC": 0,
+    "potassium": 125,
+    "vitaminA": 1,
+    "iron": 0.8,
+    "calcium": 28,
+    "magnesium": 45,
+    "zinc": 0.9,
+    "benefits": [
+      "Supports brain health",
+      "Promotes heart function",
+      "Reduces inflammation"
+    ],
+    "pairingTips": [
+      "Store in cool, dark place as omega-3s are fragile",
+      "Consume with other foods to maximize benefits"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 94,
+        "primaryBenefits": [
+          "ALA (plant omega-3) converts to EPA/DHA for brain structure",
+          "Polyphenols reduce neuroinflammation",
+          "Support cognitive aging and memory"
+        ],
+        "keyNutrients": [
+          "ALA (alpha-linolenic acid)",
+          "Polyphenols",
+          "Vitamin E",
+          "Magnesium"
+        ],
+        "mechanism": "Walnuts contain 2.5g ALA per ounce—the highest of any nut. About 10% converts to EPA/DHA (the brain's preferred omega-3s), directly supporting myelin and synaptic membrane structure. Additionally, walnut polyphenols and their metabolites reach the brain and reduce inflammatory markers associated with cognitive decline.",
+        "bestUseCases": [
+          "Daily consumption for sustained cognitive support",
+          "Particularly important for plant-based brain health",
+          "Supporting memory and executive function"
+        ],
+        "synergy": "Combine with berries and dark chocolate: berries' anthocyanins, chocolate's polyphenols, and walnuts' omega-3s create a synergistic trio addressing multiple brain aging pathways.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 92,
+        "primaryBenefits": [
+          "ALA reduces arrhythmia risk and sudden cardiac death",
+          "Polyphenols reduce inflammatory markers",
+          "Support endothelial function and blood pressure"
+        ],
+        "keyNutrients": [
+          "ALA (antiplatelet effects)",
+          "Polyphenols",
+          "Arginine (vasodilation)",
+          "Magnesium"
+        ],
+        "mechanism": "Meta-analyses show ALA consumption reduces sudden cardiac death risk by ~50%. ALA and its metabolites reduce platelet activation and inflammatory markers (CRP, IL-6) that predict cardiac events. Additionally, walnuts contain arginine, a precursor for nitric oxide synthesis, enhancing vascular relaxation and blood flow.",
+        "bestUseCases": [
+          "Daily for sustained cardiovascular support",
+          "Particularly important for those with heart disease risk factors",
+          "Supporting healthy lipid profiles and blood pressure"
+        ],
+        "synergy": "Combine with fish or flax: these combine ALA, EPA, and DHA omega-3s at all chain lengths for comprehensive cardiovascular protection through multiple mechanisms.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 78,
+        "primaryBenefits": [
+          "Healthy fats provide sustained energy (9 cal/g vs 4 for carbs)",
+          "Protein and fiber prevent energy crashes",
+          "Magnesium supports ATP energy production"
+        ],
+        "keyNutrients": [
+          "Fat (sustained fuel)",
+          "Protein (satiety)",
+          "Fiber",
+          "Magnesium"
+        ],
+        "mechanism": "Walnuts' fat content provides caloric density without rapid glucose spikes—fat oxidation is steady and sustained, preventing the energy crashes associated with simple carbs. The combination of fat, protein, and fiber creates exceptional satiety, stabilizing blood sugar for hours. Magnesium enables ATP synthesis for cellular energy.",
+        "bestUseCases": [
+          "Between meals for sustained energy",
+          "As a pre-workout snack (fat for endurance)",
+          "Supporting stable energy throughout the day"
+        ],
+        "synergy": "Pair with apple or banana: nuts' sustained fat-protein-fiber combine with fruit's quick carbs to create two-phase energy release—immediate glucose followed by sustained fat oxidation.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 35,
+    "name": "Peanut Butter",
+    "emoji": "🥜",
+    "category": "nuts",
+    "tags": [
+      "energy",
+      "brain",
+      "hormones"
+    ],
+    "serving": "2 tbsp (32g)",
+    "calories": 188,
+    "protein": 8,
+    "carbs": 6,
+    "fat": 16,
+    "fiber": 1.9,
+    "sugar": 3,
+    "vitaminC": 0,
+    "potassium": 189,
+    "vitaminA": 0,
+    "iron": 0.6,
+    "calcium": 18,
+    "magnesium": 51,
+    "zinc": 0.9,
+    "benefits": [
+      "Supports muscle building",
+      "Promotes satiety",
+      "Provides heart-healthy fats"
+    ],
+    "pairingTips": [
+      "Natural peanut butter without added oils preferred",
+      "Pair with whole grains for complete protein"
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Chia Seeds",
+    "emoji": "🫘",
+    "category": "nuts",
+    "tags": [
+      "gut",
+      "heart",
+      "bone"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 138,
+    "protein": 4.7,
+    "carbs": 12,
+    "fat": 8.7,
+    "fiber": 9.8,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 115,
+    "vitaminA": 1,
+    "iron": 1.6,
+    "calcium": 179,
+    "magnesium": 95,
+    "zinc": 1.3,
+    "benefits": [
+      "Supports heart and digestive health",
+      "Promotes satiety",
+      "Aids blood sugar control"
+    ],
+    "pairingTips": [
+      "Soak in liquid to absorb and aid digestion",
+      "Add to smoothies, puddings, or oatmeal"
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Flax Seeds",
+    "emoji": "🌱",
+    "category": "nuts",
+    "tags": [
+      "gut",
+      "hormones",
+      "heart"
+    ],
+    "serving": "1 tbsp (10g)",
+    "calories": 55,
+    "protein": 1.9,
+    "carbs": 3,
+    "fat": 4.3,
+    "fiber": 2.8,
+    "sugar": 0.2,
+    "vitaminC": 0,
+    "potassium": 84,
+    "vitaminA": 0,
+    "iron": 0.6,
+    "calcium": 26,
+    "magnesium": 44,
+    "zinc": 0.4,
+    "benefits": [
+      "Supports heart and gut health",
+      "Aids hormone balance",
+      "Promotes regular digestion"
+    ],
+    "pairingTips": [
+      "Ground flax has better bioavailability",
+      "Store ground flax in refrigerator"
+    ]
+  },
+  {
+    "id": 38,
+    "name": "Turkey Breast",
+    "emoji": "🦃",
+    "category": "proteins",
+    "tags": [
+      "energy",
+      "brain",
+      "hormones"
+    ],
+    "serving": "100g cooked",
+    "calories": 135,
+    "protein": 29,
+    "carbs": 0,
+    "fat": 1,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 300,
+    "vitaminA": 0,
+    "iron": 1.8,
+    "calcium": 25,
+    "magnesium": 26,
+    "zinc": 2.5,
+    "benefits": [
+      "Boosts energy production",
+      "Supports muscle building",
+      "Aids thyroid health"
+    ],
+    "pairingTips": [
+      "Tryptophan converts to serotonin with carbs",
+      "Pair with whole grains for best benefit"
+    ]
+  },
+  {
+    "id": 39,
+    "name": "Tuna",
+    "emoji": "🐠",
+    "category": "proteins",
+    "tags": [
+      "brain",
+      "heart",
+      "energy"
+    ],
+    "serving": "100g canned",
+    "calories": 132,
+    "protein": 23,
+    "carbs": 0,
+    "fat": 4.6,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 201,
+    "vitaminA": 8,
+    "iron": 1.3,
+    "calcium": 17,
+    "magnesium": 27,
+    "zinc": 0.8,
+    "benefits": [
+      "Supports brain and heart health",
+      "Aids cognitive function",
+      "Supports thyroid health"
+    ],
+    "pairingTips": [
+      "Choose water-packed varieties to reduce sodium",
+      "Use bone-in canned tuna for extra calcium"
+    ]
+  },
+  {
+    "id": 40,
+    "name": "Mozzarella",
+    "emoji": "🧀",
+    "category": "dairy",
+    "tags": [
+      "bone",
+      "energy",
+      "skin"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 85,
+    "protein": 6.3,
+    "carbs": 0.6,
+    "fat": 6.3,
+    "fiber": 0,
+    "sugar": 0.3,
+    "vitaminC": 0,
+    "potassium": 23,
+    "vitaminA": 48,
+    "iron": 0.2,
+    "calcium": 505,
+    "magnesium": 6,
+    "zinc": 0.7,
+    "benefits": [
+      "Supports bone health",
+      "Aids protein synthesis",
+      "Strengthens teeth"
+    ],
+    "pairingTips": [
+      "Fresh mozzarella differs from aged varieties",
+      "Pair with tomato and basil for synergy"
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Hemp Seeds",
+    "emoji": "🌿",
+    "category": "nuts",
+    "tags": [
+      "hormones",
+      "energy",
+      "brain"
+    ],
+    "serving": "3 tbsp (30g)",
+    "calories": 161,
+    "protein": 9.2,
+    "carbs": 2.6,
+    "fat": 12.3,
+    "fiber": 1.2,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 529,
+    "vitaminA": 0,
+    "iron": 4.7,
+    "calcium": 119,
+    "magnesium": 180,
+    "zinc": 2.4,
+    "benefits": [
+      "Complete amino acid profile",
+      "Supports hormone balance",
+      "Provides sustained energy"
+    ],
+    "pairingTips": [
+      "Add to smoothies or salads",
+      "Contains all essential amino acids"
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Pumpkin Seeds",
+    "emoji": "🎃",
+    "category": "nuts",
+    "tags": [
+      "energy",
+      "bone",
+      "skin"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 163,
+    "protein": 8.5,
+    "carbs": 3,
+    "fat": 15.6,
+    "fiber": 1.7,
+    "sugar": 0.5,
+    "vitaminC": 0.5,
+    "potassium": 265,
+    "vitaminA": 0,
+    "iron": 2.3,
+    "calcium": 9,
+    "magnesium": 156,
+    "zinc": 4.2,
+    "benefits": [
+      "Boosts immune function",
+      "Supports energy levels",
+      "Aids prostate health"
+    ],
+    "pairingTips": [
+      "Add to salads or eat as snack",
+      "Pair with vitamin C foods for better absorption"
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Sunflower Seeds",
+    "emoji": "🌻",
+    "category": "nuts",
+    "tags": [
+      "heart",
+      "energy",
+      "skin"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 165,
+    "protein": 5.5,
+    "carbs": 6.5,
+    "fat": 14.1,
+    "fiber": 2.4,
+    "sugar": 2.6,
+    "vitaminC": 1.5,
+    "potassium": 205,
+    "vitaminA": 2,
+    "iron": 1.5,
+    "calcium": 50,
+    "magnesium": 91,
+    "zinc": 1.7,
+    "benefits": [
+      "Supports heart health",
+      "Provides vitamin E antioxidants",
+      "Aids skin health"
+    ],
+    "pairingTips": [
+      "Add to salads or smoothies",
+      "Raw or lightly roasted"
+    ]
+  },
+  {
+    "id": 44,
+    "name": "Coconut Oil",
+    "emoji": "🥥",
+    "category": "oils",
+    "tags": [
+      "energy",
+      "brain",
+      "heart"
+    ],
+    "serving": "1 tbsp (14g)",
+    "calories": 120,
+    "protein": 0,
+    "carbs": 0,
+    "fat": 14,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 0,
+    "vitaminA": 0,
+    "iron": 0,
+    "calcium": 0,
+    "magnesium": 0,
+    "zinc": 0,
+    "benefits": [
+      "Provides quick energy",
+      "Supports cognitive function",
+      "Anti-inflammatory properties"
+    ],
+    "pairingTips": [
+      "Use for cooking at moderate heat",
+      "Add to smoothies for sustained energy"
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Olive Oil",
+    "emoji": "🫒",
+    "category": "oils",
+    "tags": [
+      "heart",
+      "brain",
+      "skin"
+    ],
+    "serving": "1 tbsp (14g)",
+    "calories": 120,
+    "protein": 0,
+    "carbs": 0,
+    "fat": 14,
+    "fiber": 0,
+    "sugar": 0,
+    "vitaminC": 0,
+    "potassium": 0,
+    "vitaminA": 0,
+    "iron": 0,
+    "calcium": 0,
+    "magnesium": 0,
+    "zinc": 0,
+    "benefits": [
+      "Supports cardiovascular health",
+      "Reduces inflammation",
+      "Aids cholesterol management"
+    ],
+    "pairingTips": [
+      "Use extra virgin for best benefits",
+      "Add after cooking to preserve nutrients"
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Ginger Root",
+    "emoji": "🫚",
+    "category": "vegetables",
+    "tags": [
+      "gut",
+      "energy",
+      "brain"
+    ],
+    "serving": "1 tbsp (5g)",
+    "calories": 5,
+    "protein": 0.1,
+    "carbs": 1.1,
+    "fat": 0,
+    "fiber": 0.2,
+    "sugar": 0,
+    "vitaminC": 0.4,
+    "potassium": 30,
+    "vitaminA": 0,
+    "iron": 0.1,
+    "calcium": 2,
+    "magnesium": 4,
+    "zinc": 0.1,
+    "benefits": [
+      "Aids digestion naturally",
+      "Reduces inflammation",
+      "Supports nausea relief"
+    ],
+    "pairingTips": [
+      "Fresh ginger is most potent",
+      "Add to teas, smoothies, or stir-fries"
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Turmeric",
+    "emoji": "🧂",
+    "category": "vegetables",
+    "tags": [
+      "heart",
+      "brain",
+      "energy"
+    ],
+    "serving": "1 tsp (3g)",
+    "calories": 8,
+    "protein": 0.3,
+    "carbs": 1.4,
+    "fat": 0.3,
+    "fiber": 0.4,
+    "sugar": 0,
+    "vitaminC": 1.7,
+    "potassium": 60,
+    "vitaminA": 0,
+    "iron": 3.1,
+    "calcium": 15,
+    "magnesium": 13,
+    "zinc": 0.2,
+    "benefits": [
+      "Powerful anti-inflammatory",
+      "Supports brain health",
+      "Aids joint comfort"
+    ],
+    "pairingTips": [
+      "Pair with black pepper for better absorption",
+      "Add to curries, smoothies, or golden milk"
+    ],
+    "goalDetails": {
+      "brain": {
+        "relevanceScore": 90,
+        "primaryBenefits": [
+          "Curcumin crosses blood-brain barrier for direct neuroprotection",
+          "Reduces neuroinflammation and amyloid-beta accumulation",
+          "Activates BDNF for neuroplasticity"
+        ],
+        "keyNutrients": [
+          "Curcumin (active polyphenol)",
+          "Turmerones",
+          "Iron"
+        ],
+        "mechanism": "Curcumin is uniquely small and lipophilic enough to cross the blood-brain barrier, where it directly protects neurons. It inhibits NF-κB signaling (inflammatory pathway) in brain tissue and has been shown in studies to reduce amyloid-beta accumulation implicated in Alzheimer's. Additionally, it upregulates BDNF, supporting neuron growth and synaptic plasticity. Bioavailability is enhanced dramatically by piperine in black pepper (up to 2000% increase).",
+        "bestUseCases": [
+          "Daily in Golden Milk or dishes with black pepper",
+          "Particularly for cognitive aging prevention",
+          "Supporting neuroplasticity and learning"
+        ],
+        "synergy": "Combine with black pepper and omega-3s: piperine maximizes curcumin absorption, while omega-3s from fish or flax work synergistically with curcumin to comprehensively address neuroinflammation.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "heart": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Curcumin reduces arterial inflammation",
+          "Improves endothelial function and vasodilation",
+          "Lowers oxidized LDL and cardiovascular disease risk"
+        ],
+        "keyNutrients": [
+          "Curcumin",
+          "Turmerones"
+        ],
+        "mechanism": "Curcumin blocks NF-κB signaling in vascular endothelial cells, reducing inflammatory cytokine production and adhesion molecule expression—this prevents atherosclerotic plaque formation. It improves endothelial function through enhanced nitric oxide production. Meta-analyses show curcumin consumption reduces cardiovascular disease markers including inflammatory markers, cholesterol ratios, and blood pressure.",
+        "bestUseCases": [
+          "Daily consumption, enhanced by black pepper",
+          "For those with high inflammation markers",
+          "Supporting cardiovascular disease prevention"
+        ],
+        "synergy": "Combine with garlic and ginger: these three rhizomes create a synergistic anti-inflammatory trio that addresses multiple cardiovascular disease pathways comprehensively.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "energy": {
+        "relevanceScore": 72,
+        "primaryBenefits": [
+          "Anti-inflammatory effects support tissue recovery",
+          "May enhance exercise performance through anti-inflammatory effects",
+          "Supports muscle function and mobility"
+        ],
+        "keyNutrients": [
+          "Curcumin (anti-inflammatory)",
+          "Iron"
+        ],
+        "mechanism": "Curcumin's anti-inflammatory effects reduce exercise-induced muscle damage and accelerate recovery, enabling more consistent training and better energy capacity. By reducing systemic inflammation, it supports mitochondrial function and oxygen utilization for efficient energy production.",
+        "bestUseCases": [
+          "Post-exercise in anti-inflammatory meals",
+          "Daily for athletes supporting recovery",
+          "Supporting sustained performance capacity"
+        ],
+        "synergy": "Combine with ginger and black pepper in a post-workout recovery drink: curcumin + ginger's gingerol compounds + black pepper's piperine create maximized anti-inflammatory effects supporting faster recovery.",
+        "evidence": "Supported by emerging research"
+      }
+    }
+  },
+  {
+    "id": 48,
+    "name": "Rosemary",
+    "emoji": "🌿",
+    "category": "vegetables",
+    "tags": [
+      "brain",
+      "energy",
+      "heart"
+    ],
+    "serving": "1 tbsp (4g)",
+    "calories": 4,
+    "protein": 0.1,
+    "carbs": 0.6,
+    "fat": 0.3,
+    "fiber": 0.4,
+    "sugar": 0,
+    "vitaminC": 0.8,
+    "potassium": 20,
+    "vitaminA": 3,
+    "iron": 0.1,
+    "calcium": 20,
+    "magnesium": 3,
+    "zinc": 0.1,
+    "benefits": [
+      "Supports memory and focus",
+      "Aids circulation",
+      "Anti-inflammatory properties"
+    ],
+    "pairingTips": [
+      "Add to herbs de Provence blends",
+      "Infuse in oils or teas"
+    ]
+  },
+  {
+    "id": 49,
+    "name": "Dark Chocolate (85%)",
+    "emoji": "🍫",
+    "category": "nuts",
+    "tags": [
+      "heart",
+      "brain",
+      "skin"
+    ],
+    "serving": "1 oz (28g)",
+    "calories": 170,
+    "protein": 4,
+    "carbs": 13,
+    "fat": 12,
+    "fiber": 3.1,
+    "sugar": 1,
+    "vitaminC": 0,
+    "potassium": 175,
+    "vitaminA": 0,
+    "iron": 3.3,
+    "calcium": 12,
+    "magnesium": 65,
+    "zinc": 1.6,
+    "benefits": [
+      "Supports heart health",
+      "Improves mood",
+      "Aids cognitive function"
+    ],
+    "pairingTips": [
+      "Choose 85%+ cacao for health benefits",
+      "Pair with berries for extra antioxidants"
+    ],
+    "goalDetails": {
+      "heart": {
+        "relevanceScore": 88,
+        "primaryBenefits": [
+          "Flavonoids improve endothelial function and blood flow",
+          "Reduce inflammatory markers associated with heart disease",
+          "Support healthy blood pressure"
+        ],
+        "keyNutrients": [
+          "Flavanols (epicatechin)",
+          "Magnesium",
+          "Polyphenols"
+        ],
+        "mechanism": "Dark chocolate's flavanols enhance nitric oxide production in endothelial cells, improving vasodilation and blood flow. This reduces blood pressure and improves coronary blood flow. Meta-analyses show regular dark chocolate consumption reduces cardiovascular disease risk by 30%. The high magnesium content supports healthy heart rhythm and relaxation.",
+        "bestUseCases": [
+          "Daily in moderation (10-30g) for cardiovascular protection",
+          "Particularly for those with mild hypertension",
+          "Supporting overall cardiovascular resilience"
+        ],
+        "synergy": "Combine with almonds and berries: almonds add additional magnesium and polyphenols while berries' anthocyanins work synergistically with chocolate's flavanols to maximize vascular benefits.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "brain": {
+        "relevanceScore": 86,
+        "primaryBenefits": [
+          "Flavanols enhance cerebral blood flow",
+          "EGCG improves neuroplasticity and BDNF",
+          "Magnesium supports neurotransmitter function"
+        ],
+        "keyNutrients": [
+          "Flavanols",
+          "EGCG (theacrine compound)",
+          "Magnesium (65mg)",
+          "Phenylethylamine"
+        ],
+        "mechanism": "Dark chocolate flavanols increase blood flow to brain tissue, particularly memory-critical regions. EGCG-related compounds enhance BDNF (brain-derived neurotrophic factor), supporting new neuron growth and synaptic plasticity. Phenylethylamine is converted to neurotransmitters that enhance mood and focus. High magnesium supports neurotransmitter release and synaptic transmission.",
+        "bestUseCases": [
+          "Moderate daily consumption for cognitive support",
+          "When mental clarity and focus are needed",
+          "Supporting mood and cognitive resilience"
+        ],
+        "synergy": "Combine with coffee or green tea: caffeine and L-theanine in these beverages synergize with chocolate's compounds to enhance focus, mood, and cognitive performance.",
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "skin": {
+        "relevanceScore": 84,
+        "primaryBenefits": [
+          "High flavanol antioxidants protect against photoaging",
+          "Improve skin blood flow and hydration",
+          "Support collagen integrity"
+        ],
+        "keyNutrients": [
+          "Flavanols (ORAC: 26,000/100g)",
+          "Magnesium",
+          "Iron"
+        ],
+        "mechanism": "Dark chocolate has one of the highest antioxidant capacities of any food. Flavanols protect against UV-induced free radical damage and prevent collagen breakdown. They also enhance skin blood flow, improving oxygen and nutrient delivery for better hydration and healing. The iron supports oxygen transport for cellular energy in skin tissue.",
+        "bestUseCases": [
+          "Daily for cumulative antioxidant protection",
+          "Particularly for sun-exposed skin",
+          "Supporting skin resilience and anti-aging"
+        ],
+        "synergy": "Combine with green tea and walnuts: this creates a synergistic antioxidant trio (chocolate flavanols + tea EGCG + walnut polyphenols) with comprehensive skin protection exceeding any single source.",
+        "evidence": "Supported by clinical nutrition research"
+      }
+    }
+  },
+  {
+    "id": 50,
+    "name": "Kombucha",
+    "emoji": "🍶",
+    "category": "dairy",
+    "tags": [
+      "gut",
+      "energy",
+      "hormones"
+    ],
+    "serving": "8 fl oz (240ml)",
+    "calories": 30,
+    "protein": 0.5,
+    "carbs": 3,
+    "fat": 0,
+    "fiber": 0,
+    "sugar": 2,
+    "vitaminC": 0,
+    "potassium": 40,
+    "vitaminA": 0,
+    "iron": 0.3,
+    "calcium": 15,
+    "magnesium": 0,
+    "zinc": 0.1,
+    "benefits": [
+      "Supports gut microbiome",
+      "Aids digestion",
+      "Boosts immune function"
+    ],
+    "pairingTips": [
+      "Drink in moderation due to sugar",
+      "Choose varieties with minimal added sugar"
+    ]
+  }
+];
+    let filteredFoods = [...foodDatabase];
+    let nextFoodId = 52;
+    // Nutrient mapping for high-in filter
+    const nutrientMap = {
+      'fiber': food => food.fiber >= 3,
+      'protein': food => food.protein >= 10,
+      'calcium': food => food.calcium >= 50,
+      'iron': food => food.iron >= 1.5,
+      'vitaminC': food => food.vitaminC >= 30,
+      'omega3': true,
+      'antioxidants': true,
+      'potassium': food => food.potassium >= 300
+    };
+    // Page switching functions
+    function switchToExplorer() {
+      document.getElementById('explorer-page').classList.remove('hidden');
+      document.getElementById('goals-page').classList.add('hidden');
+      applyTheme();
+    }
+    function switchToGoals() {
+      document.getElementById('explorer-page').classList.add('hidden');
+      document.getElementById('goals-page').classList.remove('hidden');
+      applyTheme();
+    }
+    // Ranking algorithm for goal-based food relevance
+    function rankFoodsForGoal(foods, goalKey) {
+      return foods.map(food => {
+        let totalScore = 0;
+
+        if (food.goalDetails && food.goalDetails[goalKey]) {
+          totalScore = food.goalDetails[goalKey].relevanceScore || 0;
+        } else if (food.tags.includes(goalKey)) {
+          // Fallback scoring if no detailed goal data
+          totalScore = 65;
+        }
+
+        return { food, score: totalScore };
+      }).sort((a, b) => b.score - a.score);
+    }
+    function selectGoal(goalKey) {
+      const goal = goalsData[goalKey];
+      const theme = getTheme();
+      document.getElementById('goals-selection').classList.add('hidden');
+      document.getElementById('goal-results').classList.remove('hidden');
+      // Populate goal info
+      document.getElementById('result-emoji').textContent = goal.emoji;
+      document.getElementById('result-title').textContent = goal.title;
+      document.getElementById('result-description').textContent = goal.description;
+      // Render nutrients
+      const nutrientsList = document.getElementById('nutrients-list');
+      nutrientsList.innerHTML = goal.nutrients.map((nutrient, idx) => `
+        <div class="p-4 rounded-lg animate-fade-in" style="background: ${theme.surface}; border: 2px solid ${theme.border}; animation-delay: ${idx * 30}ms;">
+          <p style="color: ${theme.textSecondary}; font-size: 13px; line-height: 1.4;">${nutrient}</p>
+        </div>
+      `).join('');
+      // Get and rank recommended foods
+      const rankedFoods = rankFoodsForGoal(foodDatabase, goalKey).slice(0, 8);
+      const foodsList = document.getElementById('recommended-foods');
+      foodsList.innerHTML = rankedFoods.map((item, idx) => {
+        const food = item.food;
+        const score = item.score;
+        const goalDetail = food.goalDetails?.[goalKey] || {};
+
+        const rankLabel = idx === 0 ? '🥇 Perfect Match' : idx === 1 ? '🥈 Excellent' : idx === 2 ? '🥉 Great' : `#${idx + 1}`;
+
+        return `
+          <div class="p-6 rounded-lg animate-fade-in" style="background: ${theme.surface}; border: 2px solid ${theme.border}; animation-delay: ${idx * 40}ms;">
+            <!-- Header with rank and emoji -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="text-5xl">${food.emoji}</span>
+                <div>
+                  <h4 class="font-bold text-xl" style="color: ${theme.text};">${food.name}</h4>
+                  <p class="food-rank text-sm font-semibold" style="color: #9ca583;">${rankLabel} (${score}/100)</p>
+                </div>
+              </div>
+              <span class="text-sm px-3 py-1 rounded-full font-semibold" style="background: ${theme.wrapper}; color: ${theme.textSecondary};">${food.serving}</span>
+            </div>
+            <!-- Primary Benefits -->
+            ${goalDetail.primaryBenefits ? `
+              <div class="mb-4 pb-4 border-b" style="border-color: ${theme.border};">
+                <p class="text-xs font-bold mb-2" style="color: #9ca583;">PRIMARY BENEFITS</p>
+                <ul class="space-y-1">
+                  ${goalDetail.primaryBenefits.map(benefit => `
+                    <li class="text-sm flex items-start gap-2" style="color: ${theme.text};">
+                      <span style="color: #9ca583; flex-shrink: 0;">✓</span>
+                      <span>${benefit}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            ` : ''}
+            <!-- Key Nutrients -->
+            ${goalDetail.keyNutrients ? `
+              <div class="mb-4 pb-4 border-b" style="border-color: ${theme.border};">
+                <p class="text-xs font-bold mb-2" style="color: #9ca583;">KEY NUTRIENTS RESPONSIBLE</p>
+                <p class="text-sm" style="color: ${theme.textSecondary};">${goalDetail.keyNutrients.join(' • ')}</p>
+              </div>
+            ` : ''}
+            <!-- Mechanism of Action -->
+            ${goalDetail.mechanism ? `
+              <div class="mb-4 pb-4 border-b" style="border-color: ${theme.border};">
+                <p class="text-xs font-bold mb-2" style="color: #9ca583;">HOW IT WORKS</p>
+                <p class="text-sm" style="color: ${theme.textSecondary};">${goalDetail.mechanism}</p>
+              </div>
+            ` : ''}
+            <!-- Best Use Cases -->
+            ${goalDetail.bestUseCases ? `
+              <div class="mb-4 pb-4 border-b" style="border-color: ${theme.border};">
+                <p class="text-xs font-bold mb-2" style="color: #9ca583;">WHO BENEFITS MOST</p>
+                <ul class="space-y-1">
+                  ${goalDetail.bestUseCases.map(useCase => `
+                    <li class="text-sm" style="color: ${theme.textSecondary};">• ${useCase}</li>
+                  `).join('')}
+                </ul>
+              </div>
+            ` : ''}
+            <!-- Synergy Tips -->
+            ${goalDetail.synergy ? `
+              <div class="mb-4 pb-4 border-b" style="border-color: ${theme.border};">
+                <p class="text-xs font-bold mb-2" style="color: #9ca583;">SYNERGY TIP</p>
+                <p class="text-sm" style="color: ${theme.textSecondary};"><strong>Combine with:</strong> ${goalDetail.synergy}</p>
+              </div>
+            ` : ''}
+            <!-- Evidence Note -->
+            ${goalDetail.evidence ? `
+              <div class="pt-2">
+                <p class="text-xs" style="color: #9ca583; font-style: italic;">📚 ${goalDetail.evidence}</p>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+    function backToGoalSelection() {
+      document.getElementById('goals-selection').classList.remove('hidden');
+      document.getElementById('goal-results').classList.add('hidden');
+    }
+    function renderFoodCard(food, index) {
+      const delay = index * 30;
+      const theme = getTheme();
+      return `
+        <div class="rounded-xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-fade-in"
+             style="background: ${theme.surface}; border: 1px solid ${theme.border}; animation-delay: ${delay}ms;"
+             onclick="showFoodDetail(${food.id})">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <span class="text-4xl">${food.emoji}</span>
+              <div>
+                <h3 class="font-bold text-lg" style="color: ${theme.text};">${food.name}</h3>
+                <p class="text-xs capitalize" style="color: ${theme.textSecondary};">${food.category}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-xl font-bold" style="color: #9ca583;">${food.calories}</span>
+              <p class="text-xs" style="color: ${theme.textSecondary};">kcal</p>
+            </div>
+          </div>
+          <p class="text-xs mb-3" style="color: ${theme.textSecondary};">Per ${food.serving}</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div class="text-center p-2 rounded-lg" style="background: ${theme.wrapper};">
+              <p class="font-bold text-sm" style="color: #c4614e;">${food.protein}g</p>
+              <p class="text-xs" style="color: ${theme.textSecondary};">Protein</p>
+            </div>
+            <div class="text-center p-2 rounded-lg" style="background: ${theme.wrapper};">
+              <p class="font-bold text-sm" style="color: #5b8c6f;">${food.carbs}g</p>
+              <p class="text-xs" style="color: ${theme.textSecondary};">Carbs</p>
+            </div>
+            <div class="text-center p-2 rounded-lg" style="background: ${theme.wrapper};">
+              <p class="font-bold text-sm" style="color: #d4a66b;">${food.fat}g</p>
+              <p class="text-xs" style="color: ${theme.textSecondary};">Fat</p>
+            </div>
+            <div class="text-center p-2 rounded-lg" style="background: ${theme.wrapper};">
+              <p class="font-bold text-sm" style="color: #e67e50;">${food.sugar}g</p>
+              <p class="text-xs" style="color: ${theme.textSecondary};">Sugar</p>
+            </div>
+          </div>
+          <!-- Tag Pills -->
+          <div class="flex flex-wrap gap-1 mt-4">
+            ${food.tags.slice(0, 2).map(tag => `
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold" style="background: ${theme.wrapper}; color: ${theme.textSecondary};">
+                ${goalIcons[tag]} ${goalLabels[tag]}
+              </span>
+            `).join('')}
+            ${food.tags.length > 2 ? `<span class="inline-block px-2 py-1 rounded-full text-xs font-semibold" style="background: ${theme.wrapper}; color: ${theme.textSecondary};">+${food.tags.length - 2}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    function renderFoodGrid() {
+      const grid = document.getElementById('food-grid');
+      const resultsCount = document.getElementById('results-count');
+      const theme = getTheme();
+
+      if (filteredFoods.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16">
+            <span class="text-6xl mb-4 block">🔍</span>
+            <p class="text-xl font-semibold" style="color: ${theme.text};">No foods found</p>
+            <p style="color: ${theme.textSecondary};">Try adjusting your search or filters</p>
+          </div>
+        `;
+        resultsCount.textContent = '0 results';
+      } else {
+        grid.innerHTML = filteredFoods.map((food, index) => renderFoodCard(food, index)).join('');
+        resultsCount.textContent = `${filteredFoods.length} food${filteredFoods.length !== 1 ? 's' : ''} found`;
+      }
+      resultsCount.style.color = theme.textSecondary;
+    }
+    function showFoodDetail(foodId) {
+      const food = foodDatabase.find(f => f.id === foodId);
+      if (!food) return;
+      const modal = document.getElementById('detail-modal');
+      const content = document.getElementById('modal-content');
+      const theme = getTheme();
+
+      content.innerHTML = `
+        <div class="p-8">
+          <div class="flex items-start justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <span class="text-6xl">${food.emoji}</span>
+              <div>
+                <h2 class="text-3xl font-bold" style="color: ${theme.text};">${food.name}</h2>
+                <p style="color: ${theme.textSecondary};">${food.category}</p>
+                <p class="text-sm mt-1" style="color: ${theme.textSecondary};">Serving: ${food.serving}</p>
+              </div>
+            </div>
+            <button onclick="closeModal()" class="p-2 rounded-lg transition-colors hover:opacity-80" style="background: ${theme.wrapper};">
+              <svg class="w-6 h-6" fill="none" stroke="${theme.text}" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Tags Pills -->
+          ${food.tags && food.tags.length > 0 ? `
+          <div class="mb-6 flex flex-wrap gap-2">
+            ${food.tags.map(tag => `
+              <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold" style="background: ${theme.wrapper}; color: ${theme.textSecondary};">
+                ${goalIcons[tag]} ${goalLabels[tag]}
+              </span>
+            `).join('')}
+          </div>
+          ` : ''}
+          <!-- Calories Display -->
+          <div class="text-center p-6 rounded-xl mb-6" style="background: ${theme.wrapper}; border-left: 4px solid #9ca583;">
+            <span class="text-5xl font-bold" style="color: #9ca583;">${food.calories}</span>
+            <p class="text-base mt-2" style="color: ${theme.text};">Calories per serving</p>
+          </div>
+          <!-- Macronutrient Breakdown -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Macronutrient Breakdown</h3>
+          <div class="grid grid-cols-4 gap-3 mb-8">
+            <div class="text-center p-4 rounded-lg" style="background: ${theme.surface}; border: 2px solid ${theme.border};">
+              <p class="font-bold text-sm" style="color: #c4614e;">${food.protein}g</p>
+              <p class="text-xs mt-1" style="color: ${theme.textSecondary};">Protein</p>
+            </div>
+            <div class="text-center p-4 rounded-lg" style="background: ${theme.surface}; border: 2px solid ${theme.border};">
+              <p class="font-bold text-sm" style="color: #5b8c6f;">${food.carbs}g</p>
+              <p class="text-xs mt-1" style="color: ${theme.textSecondary};">Carbs</p>
+            </div>
+            <div class="text-center p-4 rounded-lg" style="background: ${theme.surface}; border: 2px solid ${theme.border};">
+              <p class="font-bold text-sm" style="color: #d4a66b;">${food.fat}g</p>
+              <p class="text-xs mt-1" style="color: ${theme.textSecondary};">Fat</p>
+            </div>
+            <div class="text-center p-4 rounded-lg" style="background: ${theme.surface}; border: 2px solid ${theme.border};">
+              <p class="font-bold text-sm" style="color: #e67e50;">${food.sugar}g</p>
+              <p class="text-xs mt-1" style="color: ${theme.textSecondary};">Sugar (g)</p>
+            </div>
+          </div>
+          <!-- Top Key Nutrients -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Top Key Nutrients</h3>
+          <div class="space-y-3 mb-8 p-5 rounded-lg" style="background: ${theme.surface}; border: 2px solid ${theme.border};">
+            <div class="flex justify-between items-center p-3 rounded-lg border-l-4" style="background: ${theme.surface}; border-color: #c4614e;">
+              <span style="color: ${theme.text};"><strong>Protein:</strong> ${food.protein}g</span>
+              <span class="text-sm font-semibold" style="color: #c4614e; background: #ffe8e2; padding: 4px 8px; border-radius: 4px;">${Math.round((food.protein / 50) * 100)}% DV</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-lg border-l-4" style="background: ${theme.surface}; border-color: #5b8c6f;">
+              <span style="color: ${theme.text};"><strong>Fiber:</strong> ${food.fiber}g</span>
+              <span class="text-sm font-semibold" style="color: #5b8c6f; background: #e8f1ec; padding: 4px 8px; border-radius: 4px;">${Math.round((food.fiber / 25) * 100)}% DV</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-lg border-l-4" style="background: ${theme.surface}; border-color: #d4a66b;">
+              <span style="color: ${theme.text};"><strong>Calcium:</strong> ${food.calcium}mg</span>
+              <span class="text-sm font-semibold" style="color: #d4a66b; background: #fef3e2; padding: 4px 8px; border-radius: 4px;">${Math.round((food.calcium / 1300) * 100)}% DV</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-lg border-l-4" style="background: ${theme.surface}; border-color: #9ca583;">
+              <span style="color: ${theme.text};"><strong>Iron:</strong> ${food.iron}mg</span>
+              <span class="text-sm font-semibold" style="color: #9ca583; background: #e8f0e5; padding: 4px 8px; border-radius: 4px;">${Math.round((food.iron / 18) * 100)}% DV</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-lg border-l-4" style="background: ${theme.surface}; border-color: #8b7355;">
+              <span style="color: ${theme.text};"><strong>Vitamin C:</strong> ${food.vitaminC}mg</span>
+              <span class="text-sm font-semibold" style="color: #8b7355; background: #f3e8e2; padding: 4px 8px; border-radius: 4px;">${Math.round((food.vitaminC / 90) * 100)}% DV</span>
+            </div>
+          </div>
+          <!-- Macro Progress Bars -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Macro Composition</h3>
+          <div class="space-y-3 mb-8">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span style="color: ${theme.text};">Carbohydrates</span>
+                <span class="font-bold" style="color: #5b8c6f;">${food.carbs}g</span>
+              </div>
+              <div class="h-2 rounded-full overflow-hidden" style="background: ${theme.border};">
+                <div class="h-full" style="width: ${Math.min((food.carbs / 300) * 100, 100)}%; background: linear-gradient(90deg, #5b8c6f, #7aa587);"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span style="color: ${theme.text};">Fat</span>
+                <span class="font-bold" style="color: #d4a66b;">${food.fat}g</span>
+              </div>
+              <div class="h-2 rounded-full overflow-hidden" style="background: ${theme.border};">
+                <div class="h-full" style="width: ${Math.min((food.fat / 78) * 100, 100)}%; background: linear-gradient(90deg, #d4a66b, #e8b87a);"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Benefits -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Health Benefits</h3>
+          <div class="space-y-2 mb-8">
+            ${food.benefits.map(benefit => `
+              <div class="flex items-start gap-3 p-3 rounded-lg" style="background: ${theme.wrapper};">
+                <span style="color: #9ca583; font-size: 18px;">✓</span>
+                <span style="color: ${theme.text};">${benefit}</span>
+              </div>
+            `).join('')}
+          </div>
+          <!-- Best Pairing Tips -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Best Pairing Tips</h3>
+          <div class="space-y-2">
+            ${food.pairingTips.map(tip => `
+              <div class="flex items-start gap-3 p-3 rounded-lg" style="background: ${theme.wrapper}; border-left: 3px solid #9ca583;">
+                <span style="color: #9ca583; font-size: 14px;">→</span>
+                <span style="color: ${theme.text}; font-size: 14px;">${tip}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      const modalWrapper = modal.querySelector('div:not(#modal-content)');
+      if (modalWrapper) modalWrapper.style.background = theme.modalBg;
+    }
+    function closeModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    function openAddFoodModal() {
+      const modal = document.getElementById('add-food-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('add-food-form').reset();
+      document.getElementById('form-error').style.display = 'none';
+      applyTheme();
+    }
+    function closeAddFoodModal() {
+      const modal = document.getElementById('add-food-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    function submitAddFood(event) {
+      event.preventDefault();
+      const name = document.getElementById('food-name').value.trim();
+      const emoji = document.getElementById('food-emoji').value.trim() || '🍽️';
+      const category = document.getElementById('food-category').value.trim();
+      const serving = document.getElementById('food-serving').value.trim();
+      const calories = parseFloat(document.getElementById('food-calories').value) || 0;
+      const protein = parseFloat(document.getElementById('food-protein').value) || 0;
+      const carbs = parseFloat(document.getElementById('food-carbs').value) || 0;
+      const fat = parseFloat(document.getElementById('food-fat').value) || 0;
+      const fiber = parseFloat(document.getElementById('food-fiber').value) || 0;
+      const sugar = parseFloat(document.getElementById('food-sugar').value) || 0;
+      const vitaminC = parseFloat(document.getElementById('food-vitaminC').value) || 0;
+      const potassium = parseFloat(document.getElementById('food-potassium').value) || 0;
+      const vitaminA = parseFloat(document.getElementById('food-vitaminA').value) || 0;
+      const iron = parseFloat(document.getElementById('food-iron').value) || 0;
+      const calcium = parseFloat(document.getElementById('food-calcium').value) || 0;
+      const magnesium = parseFloat(document.getElementById('food-magnesium').value) || 0;
+      const zinc = parseFloat(document.getElementById('food-zinc').value) || 0;
+
+      const tags = document.getElementById('food-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(t => t && goalLabels[t]);
+      const benefits = document.getElementById('food-benefits').value.split(',').map(b => b.trim()).filter(b => b);
+      const pairingTips = document.getElementById('food-pairingTips').value.split(',').map(p => p.trim()).filter(p => p);
+      const errorDiv = document.getElementById('form-error');
+      const errorMsg = document.getElementById('error-message');
+      if (!name) {
+        errorMsg.textContent = '❌ Food name is required';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!category) {
+        errorMsg.textContent = '❌ Category is required';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!serving) {
+        errorMsg.textContent = '❌ Serving size is required';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (calories === 0 || isNaN(calories)) {
+        errorMsg.textContent = '❌ Calories must be a valid number';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      const newFood = {
+        id: nextFoodId++,
+        name,
+        emoji,
+        category,
+        tags: tags.length > 0 ? tags : ['energy'],
+        serving,
+        calories,
+        protein,
+        carbs,
+        fat,
+        fiber,
+        sugar,
+        vitaminC,
+        potassium,
+        vitaminA,
+        iron,
+        calcium,
+        magnesium,
+        zinc,
+        benefits: benefits.length > 0 ? benefits : ['Nutritious addition to your diet'],
+        pairingTips: pairingTips.length > 0 ? pairingTips : ['Enjoy as part of a balanced meal']
+      };
+      foodDatabase.push(newFood);
+      filterFoods();
+      closeAddFoodModal();
+
+      const successDiv = document.createElement('div');
+      successDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-semibold animate-fade-in';
+      successDiv.style.background = '#9ca583';
+      successDiv.textContent = `✓ ${name} added successfully!`;
+      document.body.appendChild(successDiv);
+      setTimeout(() => successDiv.remove(), 3000);
+    }
+    function filterFoods() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const category = document.getElementById('category-filter').value;
+      const goal = document.getElementById('goal-filter').value;
+      const nutrient = document.getElementById('nutrient-filter').value;
+      const system = document.getElementById('system-filter').value;
+      filteredFoods = foodDatabase.filter(food => {
+        const matchesSearch = food.name.toLowerCase().includes(searchTerm);
+        const matchesCategory = category === 'all' || food.category === category;
+        const matchesGoal = goal === 'all' || (food.tags && food.tags.includes(goal));
+        const matchesNutrient = nutrient === 'all' || (nutrientMap[nutrient] && nutrientMap[nutrient](food));
+        const matchesSystem = system === 'all' || (food.tags && food.tags.includes(system));
+
+        return matchesSearch && matchesCategory && matchesGoal && matchesNutrient && matchesSystem;
+      });
+      renderFoodGrid();
+    }
+    // Event Listeners
+    document.getElementById('search-input').addEventListener('input', filterFoods);
+    document.getElementById('category-filter').addEventListener('change', filterFoods);
+    document.getElementById('goal-filter').addEventListener('change', filterFoods);
+    document.getElementById('nutrient-filter').addEventListener('change', filterFoods);
+    document.getElementById('system-filter').addEventListener('change', filterFoods);
+    document.getElementById('detail-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.getElementById('add-food-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeAddFoodModal();
+    });
+    // Element SDK Integration
+    const defaultConfig = {
+      app_title: 'Nutrition Explorer',
+      app_subtitle: 'Discover foods that support your wellness'
+    };
+    async function onConfigChange(config) {
+      const appTitle = document.getElementById('app-title');
+      const appSubtitle = document.getElementById('app-subtitle');
+      appTitle.textContent = config.app_title || defaultConfig.app_title;
+      appSubtitle.textContent = config.app_subtitle || defaultConfig.app_subtitle;
+    }
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['app_subtitle', config.app_subtitle || defaultConfig.app_subtitle]
+      ]);
+    }
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+    applyTheme();
+    renderFoodGrid();
+  </script>
+</body>
+</html>
