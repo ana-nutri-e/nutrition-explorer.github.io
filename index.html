@@ -87,7 +87,7 @@
               <input type="text" id="search-input" placeholder="Search foods..." class="w-full pl-12 pr-4 py-3 rounded-lg text-base focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;" onfocus="this.style.borderColor='#9ca583'" onblur="updateInputBorder()">
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <!-- Category Filter -->
             <div>
               <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Category</label>
@@ -144,7 +144,19 @@
                 <option value="brain">🧠 Brain Health</option>
               </select>
             </div>
+            <!-- Health Condition Filter -->
+            <div>
+              <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Health Condition</label>
+              <select id="condition-filter" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;">
+                <option value="all">All Conditions</option>
+                <option value="diabetes">🩸 Diabetes</option>
+                <option value="ibs">🌀 IBS</option>
+                <option value="pms">🌙 PMS</option>
+                <option value="pmos">⚖️ PMOS</option>
+              </select>
+            </div>
           </div>
+          <p class="text-xs mt-3" style="color: #7a7970;">Health Condition results are educational only, not medical advice. Talk to a healthcare provider about managing a diagnosed condition.</p>
         </div>
         <!-- Food Grid -->
         <div id="food-grid" class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -595,6 +607,18 @@
       'bone': 'Bone',
       'skin': 'Skin'
     };
+    const conditionIcons = {
+      'diabetes': '🩸',
+      'ibs': '🌀',
+      'pms': '🌙',
+      'pmos': '⚖️'
+    };
+    const conditionLabels = {
+      'diabetes': 'Diabetes',
+      'ibs': 'IBS',
+      'pms': 'PMS',
+      'pmos': 'PMOS'
+    };
     // Goal-specific data with detailed nutrition info
     const goalsData = {
       'low-energy': {
@@ -802,6 +826,14 @@
     "name": "Banana",
     "emoji": "🍌",
     "category": "fruits",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 74,
+        "summary": "Vitamin B6 and potassium may help support mood regulation and ease bloating associated with PMS.",
+        "keyNutrients": ["Vitamin B6", "Potassium"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "heart",
       "energy",
@@ -1002,6 +1034,20 @@
     "name": "Blueberries",
     "emoji": "🫐",
     "category": "fruits",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 72,
+        "summary": "A lower-FODMAP fruit option compared to apples or mangoes, blueberries can provide fiber and antioxidants with less risk of triggering symptoms in typical servings.",
+        "keyNutrients": ["Low-FODMAP fiber", "Antioxidants"],
+        "evidence": "Supported by emerging research"
+      },
+      "pmos": {
+        "relevanceScore": 70,
+        "summary": "A lower-glycemic fruit rich in antioxidants that fits an anti-inflammatory, blood-sugar-friendly eating pattern for PMOS.",
+        "keyNutrients": ["Antioxidants", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "brain",
       "skin",
@@ -1204,6 +1250,20 @@
     "name": "Avocado",
     "emoji": "🥑",
     "category": "fruits",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 76,
+        "summary": "Low in carbohydrates and rich in monounsaturated fat and fiber, avocado may help support stable blood sugar when substituted for refined carbs.",
+        "keyNutrients": ["Monounsaturated fat", "Fiber", "Potassium"],
+        "evidence": "Supported by emerging research"
+      },
+      "pmos": {
+        "relevanceScore": 74,
+        "summary": "Low glycemic impact and healthy fats support the insulin-friendly eating pattern recommended for managing PMOS.",
+        "keyNutrients": ["Monounsaturated fat", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "heart",
       "hormones",
@@ -1340,6 +1400,14 @@
     "name": "Kiwi",
     "emoji": "🥝",
     "category": "fruits",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 85,
+        "summary": "Kiwifruit has been specifically studied for IBS with constipation, showing it may help support more comfortable, regular bowel movements.",
+        "keyNutrients": ["Actinidin (enzyme)", "Fiber"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "brain",
@@ -1408,6 +1476,14 @@
     "name": "Broccoli",
     "emoji": "🥦",
     "category": "vegetables",
+    "conditionSupport": {
+      "pmos": {
+        "relevanceScore": 72,
+        "summary": "Cruciferous compounds are studied for supporting healthy estrogen metabolism, which may be relevant to the hormonal imbalances seen in PMOS.",
+        "keyNutrients": ["Glucosinolates", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "brain",
       "gut",
@@ -1509,6 +1585,14 @@
     "name": "Spinach",
     "emoji": "🥬",
     "category": "vegetables",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 76,
+        "summary": "Magnesium is commonly studied for easing PMS-related mood changes, bloating, and cramping, and spinach is one of the more concentrated food sources.",
+        "keyNutrients": ["Magnesium", "Calcium"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "brain",
       "energy",
@@ -1611,6 +1695,14 @@
     "name": "Kale",
     "emoji": "🥬",
     "category": "vegetables",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 74,
+        "summary": "Provides both calcium and magnesium, two minerals commonly associated with reduced PMS symptom severity in clinical research.",
+        "keyNutrients": ["Calcium", "Magnesium"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "brain",
       "gut",
@@ -1713,6 +1805,14 @@
     "name": "Carrots",
     "emoji": "🥕",
     "category": "vegetables",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 74,
+        "summary": "A low-FODMAP vegetable that's generally gentle on digestion and easy to tolerate for most people with IBS.",
+        "keyNutrients": ["Low-FODMAP fiber", "Beta-carotene"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "brain",
       "skin",
@@ -1747,6 +1847,14 @@
     "name": "Sweet Potato",
     "emoji": "🍠",
     "category": "vegetables",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 68,
+        "summary": "Complex carbohydrates and vitamin B6 may help support steadier mood and energy in the days before menstruation.",
+        "keyNutrients": ["Complex carbohydrates", "Vitamin B6"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "energy",
@@ -1849,6 +1957,14 @@
     "name": "Cucumber",
     "emoji": "🥒",
     "category": "vegetables",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 72,
+        "summary": "Low in fermentable carbohydrates and high in water content, cucumber is typically well tolerated and gentle on the digestive system.",
+        "keyNutrients": ["Low-FODMAP", "Water"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "skin",
@@ -1883,6 +1999,32 @@
     "name": "Salmon",
     "emoji": "🐟",
     "category": "proteins",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 75,
+        "summary": "Omega-3 fatty acids are associated with reduced inflammation and may help support insulin sensitivity as part of an overall blood-sugar-friendly diet.",
+        "keyNutrients": ["Omega-3 fatty acids", "Protein"],
+        "evidence": "Supported by emerging research"
+      },
+      "ibs": {
+        "relevanceScore": 65,
+        "summary": "As a low-FODMAP, easily digestible protein, salmon is generally gentle on digestion, and its omega-3s may help ease inflammation-related discomfort.",
+        "keyNutrients": ["Omega-3 fatty acids", "Lean protein"],
+        "evidence": "Supported by emerging research"
+      },
+      "pms": {
+        "relevanceScore": 78,
+        "summary": "Omega-3 fatty acids and vitamin D are associated with reduced inflammation and may help ease PMS-related mood and cramping symptoms.",
+        "keyNutrients": ["Omega-3 fatty acids", "Vitamin D"],
+        "evidence": "Supported by emerging research"
+      },
+      "pmos": {
+        "relevanceScore": 82,
+        "summary": "Omega-3 fatty acids help reduce the chronic low-grade inflammation associated with PMOS and may help support insulin sensitivity.",
+        "keyNutrients": ["Omega-3 fatty acids", "Vitamin D"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "brain",
       "heart",
@@ -1985,6 +2127,14 @@
     "name": "Chicken Breast",
     "emoji": "🍗",
     "category": "proteins",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 76,
+        "summary": "As a low-FODMAP, easily digestible protein source, chicken breast is generally well tolerated and unlikely to trigger IBS symptoms.",
+        "keyNutrients": ["Lean protein"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "energy",
       "brain",
@@ -2019,6 +2169,14 @@
     "name": "Eggs",
     "emoji": "🥚",
     "category": "proteins",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 76,
+        "summary": "A low-FODMAP, gentle protein option that's typically well tolerated and easy to include in IBS-friendly meals.",
+        "keyNutrients": ["Protein", "Choline"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "brain",
       "hormones",
@@ -2155,6 +2313,14 @@
     "name": "Lentils",
     "emoji": "🍲",
     "category": "legumes",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 87,
+        "summary": "Among the lowest glycemic index legumes, lentils combine fiber and protein in a way that may help support gradual glucose release rather than sharp spikes.",
+        "keyNutrients": ["Fiber", "Plant protein", "Folate"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "energy",
@@ -2257,6 +2423,20 @@
     "name": "Chickpeas",
     "emoji": "⭐",
     "category": "legumes",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 85,
+        "summary": "High fiber and protein content slows digestion and may help support more stable blood sugar and insulin response after meals.",
+        "keyNutrients": ["Fiber", "Plant protein", "Resistant starch"],
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "pmos": {
+        "relevanceScore": 80,
+        "summary": "High fiber and plant protein support the low-glycemic, insulin-friendly eating pattern that's a cornerstone of PMOS dietary management.",
+        "keyNutrients": ["Fiber", "Plant protein"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "hormones",
@@ -2291,6 +2471,14 @@
     "name": "Brown Rice",
     "emoji": "🍚",
     "category": "grains",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 78,
+        "summary": "As a low-FODMAP staple grain, brown rice is generally well tolerated and can be a gentle base for meals during symptom flares.",
+        "keyNutrients": ["Low-FODMAP carbohydrate"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "energy",
       "brain",
@@ -2325,6 +2513,20 @@
     "name": "Quinoa",
     "emoji": "🌾",
     "category": "grains",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 78,
+        "summary": "A lower-glycemic whole grain with fiber and complete protein that may help support steadier blood sugar compared to refined grains.",
+        "keyNutrients": ["Fiber", "Complete protein", "Magnesium"],
+        "evidence": "Supported by emerging research"
+      },
+      "pmos": {
+        "relevanceScore": 74,
+        "summary": "A lower-glycemic whole grain that fits the fiber-rich, blood-sugar-friendly eating pattern recommended for supporting insulin sensitivity in PMOS.",
+        "keyNutrients": ["Fiber", "Complete protein"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "energy",
       "bone",
@@ -2359,6 +2561,26 @@
     "name": "Oatmeal",
     "emoji": "🥣",
     "category": "grains",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 88,
+        "summary": "Beta-glucan soluble fiber slows carbohydrate absorption, which may help support steadier post-meal blood sugar compared to refined cereals.",
+        "keyNutrients": ["Beta-glucan fiber", "Complex carbohydrates", "Magnesium"],
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "ibs": {
+        "relevanceScore": 70,
+        "summary": "Soluble fiber can support regularity for some people with IBS, though those sensitive to fiber load may need to start with smaller portions.",
+        "keyNutrients": ["Soluble fiber"],
+        "evidence": "Supported by emerging research"
+      },
+      "pms": {
+        "relevanceScore": 70,
+        "summary": "Complex carbohydrates support steady serotonin production, which may help ease PMS-related mood fluctuations.",
+        "keyNutrients": ["Complex carbohydrates", "Magnesium"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "heart",
@@ -2393,6 +2615,20 @@
     "name": "Greek Yogurt",
     "emoji": "🥄",
     "category": "dairy",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 80,
+        "summary": "High protein content and live cultures are associated with improved insulin response and more stable post-meal blood sugar in observational research.",
+        "keyNutrients": ["Protein", "Probiotics", "Calcium"],
+        "evidence": "Supported by emerging research"
+      },
+      "pms": {
+        "relevanceScore": 80,
+        "summary": "Calcium intake has been linked in clinical research to reduced PMS symptom severity, including mood and cramping.",
+        "keyNutrients": ["Calcium", "Protein"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "bone",
@@ -2494,6 +2730,14 @@
     "name": "Milk (2%)",
     "emoji": "🥛",
     "category": "dairy",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 78,
+        "summary": "Calcium and vitamin D from dairy have both been studied for their association with milder PMS symptoms.",
+        "keyNutrients": ["Calcium", "Vitamin D"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "bone",
       "energy",
@@ -2528,6 +2772,20 @@
     "name": "Almonds",
     "emoji": "🥜",
     "category": "nuts",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 78,
+        "summary": "Healthy fats, fiber, and magnesium may help support insulin sensitivity and blunt blood sugar spikes when eaten alongside carbohydrates.",
+        "keyNutrients": ["Magnesium", "Fiber", "Monounsaturated fat"],
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "pms": {
+        "relevanceScore": 72,
+        "summary": "Magnesium content may help support easing PMS-related muscle tension and mood symptoms.",
+        "keyNutrients": ["Magnesium"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "heart",
       "energy",
@@ -2629,6 +2887,14 @@
     "name": "Walnuts",
     "emoji": "🌰",
     "category": "nuts",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 74,
+        "summary": "Omega-3 fats and fiber are associated with improved insulin sensitivity and may help support healthier long-term blood sugar management.",
+        "keyNutrients": ["Omega-3 fatty acids", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "brain",
       "heart",
@@ -2731,6 +2997,26 @@
     "name": "Chia Seeds",
     "emoji": "🫘",
     "category": "nuts",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 80,
+        "summary": "Chia's soluble fiber forms a gel in the digestive tract that slows carbohydrate absorption, which may help support more stable blood sugar.",
+        "keyNutrients": ["Soluble fiber", "Omega-3 fatty acids"],
+        "evidence": "Supported by emerging research"
+      },
+      "ibs": {
+        "relevanceScore": 68,
+        "summary": "In small servings, chia's soluble fiber can support regularity, though larger amounts may worsen bloating for some people with IBS.",
+        "keyNutrients": ["Soluble fiber"],
+        "evidence": "Supported by emerging research"
+      },
+      "pmos": {
+        "relevanceScore": 76,
+        "summary": "Fiber and omega-3s support the blood-sugar-balancing, anti-inflammatory eating pattern generally recommended for managing PMOS.",
+        "keyNutrients": ["Fiber", "Omega-3 fatty acids"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "heart",
@@ -2765,6 +3051,14 @@
     "name": "Flax Seeds",
     "emoji": "🌱",
     "category": "nuts",
+    "conditionSupport": {
+      "pmos": {
+        "relevanceScore": 76,
+        "summary": "Lignans may help support healthier estrogen metabolism, while fiber supports the blood-sugar balance that's central to PMOS management.",
+        "keyNutrients": ["Lignans", "Fiber", "Omega-3 fatty acids"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "hormones",
@@ -2799,6 +3093,14 @@
     "name": "Turkey Breast",
     "emoji": "🦃",
     "category": "proteins",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 68,
+        "summary": "Tryptophan and vitamin B6 support serotonin production, which may help ease PMS-related mood symptoms.",
+        "keyNutrients": ["Tryptophan", "Vitamin B6"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "energy",
       "brain",
@@ -2969,6 +3271,14 @@
     "name": "Pumpkin Seeds",
     "emoji": "🎃",
     "category": "nuts",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 76,
+        "summary": "Rich in magnesium and zinc, both nutrients studied for supporting mood stability and easing cramping in the days before menstruation.",
+        "keyNutrients": ["Magnesium", "Zinc", "Tryptophan"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "energy",
       "bone",
@@ -3105,6 +3415,14 @@
     "name": "Ginger Root",
     "emoji": "🫚",
     "category": "vegetables",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 82,
+        "summary": "Traditionally and in some clinical research, ginger has been used to help ease nausea and support smoother digestion, though individual response varies.",
+        "keyNutrients": ["Gingerol"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "energy",
@@ -3139,6 +3457,14 @@
     "name": "Turmeric",
     "emoji": "🧂",
     "category": "vegetables",
+    "conditionSupport": {
+      "ibs": {
+        "relevanceScore": 68,
+        "summary": "Curcumin's anti-inflammatory properties have been studied for easing general digestive discomfort, though evidence specific to IBS is still developing.",
+        "keyNutrients": ["Curcumin"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "heart",
       "brain",
@@ -3270,6 +3596,20 @@
     "name": "Black Beans",
     "emoji": "🫘",
     "category": "legumes",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 85,
+        "summary": "Fiber and resistant starch slow carbohydrate digestion, which may help support more stable blood sugar levels after meals.",
+        "keyNutrients": ["Fiber", "Resistant starch", "Magnesium"],
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "pmos": {
+        "relevanceScore": 80,
+        "summary": "Fiber and resistant starch support the blood-sugar-balancing eating pattern recommended for managing PMOS-related insulin resistance.",
+        "keyNutrients": ["Fiber", "Resistant starch"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "gut",
       "energy",
@@ -3371,6 +3711,14 @@
     "name": "Edamame",
     "emoji": "🌱",
     "category": "legumes",
+    "conditionSupport": {
+      "pmos": {
+        "relevanceScore": 78,
+        "summary": "Soy isoflavones and complete plant protein may help support hormonal balance, an area of particular relevance given PMOS's hormonal component.",
+        "keyNutrients": ["Isoflavones", "Plant protein", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "hormones",
       "energy",
@@ -3572,6 +3920,14 @@
     "name": "Cauliflower",
     "emoji": "🥦",
     "category": "vegetables",
+    "conditionSupport": {
+      "pmos": {
+        "relevanceScore": 70,
+        "summary": "Like other cruciferous vegetables, cauliflower's compounds are studied for supporting healthy estrogen metabolism relevant to PMOS.",
+        "keyNutrients": ["Glucosinolates", "Fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "brain",
@@ -3972,6 +4328,20 @@
     "name": "Barley",
     "emoji": "🌾",
     "category": "grains",
+    "conditionSupport": {
+      "diabetes": {
+        "relevanceScore": 86,
+        "summary": "Barley's beta-glucan fiber is well studied for slowing glucose absorption and may help support healthier post-meal blood sugar response.",
+        "keyNutrients": ["Beta-glucan fiber", "Complex carbohydrates"],
+        "evidence": "Supported by clinical nutrition research"
+      },
+      "pmos": {
+        "relevanceScore": 76,
+        "summary": "Beta-glucan fiber supports the low-glycemic eating pattern generally recommended to help manage insulin resistance in PMOS.",
+        "keyNutrients": ["Beta-glucan fiber"],
+        "evidence": "Supported by emerging research"
+      }
+    },
     "tags": [
       "gut",
       "heart",
@@ -4071,6 +4441,14 @@
     "name": "Cottage Cheese",
     "emoji": "🧀",
     "category": "dairy",
+    "conditionSupport": {
+      "pms": {
+        "relevanceScore": 74,
+        "summary": "A calcium-rich, high-protein option that may help support the calcium intake linked to reduced PMS symptom severity.",
+        "keyNutrients": ["Calcium", "Protein"],
+        "evidence": "Supported by clinical nutrition research"
+      }
+    },
     "tags": [
       "bone",
       "energy",
@@ -4597,7 +4975,7 @@
           </div>
           <!-- Best Pairing Tips -->
           <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Best Pairing Tips</h3>
-          <div class="space-y-2">
+          <div class="space-y-2${food.conditionSupport ? ' mb-8' : ''}">
             ${food.pairingTips.map(tip => `
               <div class="flex items-start gap-3 p-3 rounded-lg" style="background: ${theme.wrapper}; border-left: 3px solid #9ca583;">
                 <span style="color: #9ca583; font-size: 14px;">→</span>
@@ -4605,6 +4983,26 @@
               </div>
             `).join('')}
           </div>
+          ${food.conditionSupport ? `
+          <!-- Condition Support -->
+          <h3 class="font-bold text-lg mb-4" style="color: ${theme.text};">Health Condition Support</h3>
+          <div class="space-y-3">
+            ${Object.keys(food.conditionSupport).map(condKey => {
+              const c = food.conditionSupport[condKey];
+              return `
+              <div class="p-4 rounded-lg" style="background: ${theme.wrapper}; border-left: 3px solid #9ca583;">
+                <div class="flex items-center gap-2 mb-2">
+                  <span style="font-size: 16px;">${conditionIcons[condKey]}</span>
+                  <span class="font-semibold text-sm" style="color: ${theme.text};">${conditionLabels[condKey]}</span>
+                </div>
+                <p class="text-sm mb-2" style="color: ${theme.text};">${c.summary}</p>
+                <p class="text-xs" style="color: ${theme.textSecondary};"><strong>Key nutrients:</strong> ${c.keyNutrients.join(', ')}</p>
+              </div>
+              `;
+            }).join('')}
+          </div>
+          <p class="text-xs mt-3" style="color: ${theme.textSecondary};">This information is educational only and not medical advice. Talk to a healthcare provider about managing a diagnosed condition.</p>
+          ` : ''}
         </div>
       `;
       modal.classList.remove('hidden');
@@ -4715,14 +5113,16 @@
       const goal = document.getElementById('goal-filter').value;
       const nutrient = document.getElementById('nutrient-filter').value;
       const system = document.getElementById('system-filter').value;
+      const condition = document.getElementById('condition-filter').value;
       filteredFoods = foodDatabase.filter(food => {
         const matchesSearch = food.name.toLowerCase().includes(searchTerm);
         const matchesCategory = category === 'all' || food.category === category;
         const matchesGoal = goal === 'all' || (food.tags && food.tags.includes(goal));
         const matchesNutrient = nutrient === 'all' || (nutrientMap[nutrient] && nutrientMap[nutrient](food));
         const matchesSystem = system === 'all' || (food.tags && food.tags.includes(system));
+        const matchesCondition = condition === 'all' || (food.conditionSupport && food.conditionSupport[condition]);
 
-        return matchesSearch && matchesCategory && matchesGoal && matchesNutrient && matchesSystem;
+        return matchesSearch && matchesCategory && matchesGoal && matchesNutrient && matchesSystem && matchesCondition;
       });
       renderFoodGrid();
     }
@@ -4732,6 +5132,7 @@
     document.getElementById('goal-filter').addEventListener('change', filterFoods);
     document.getElementById('nutrient-filter').addEventListener('change', filterFoods);
     document.getElementById('system-filter').addEventListener('change', filterFoods);
+    document.getElementById('condition-filter').addEventListener('change', filterFoods);
     document.getElementById('detail-modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
