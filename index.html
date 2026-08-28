@@ -36,6 +36,32 @@
     .animate-fade-in {
       animation: fadeIn 0.3s ease-out forwards;
     }
+    @keyframes digestBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    @keyframes digestDrop {
+      0% { transform: translateY(-6px); opacity: 0.4; }
+      50% { transform: translateY(4px); opacity: 1; }
+      100% { transform: translateY(-6px); opacity: 0.4; }
+    }
+    @keyframes digestSlideDown {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(60px); }
+    }
+    @keyframes digestWiggle {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    @keyframes digestPulseOut {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .digest-bounce { animation: digestBounce 1.4s ease-in-out infinite; transform-origin: center; }
+    .digest-drop { animation: digestDrop 1.6s ease-in-out infinite; }
+    .digest-slide { animation: digestSlideDown 1.8s ease-in-out infinite; }
+    .digest-wiggle { animation: digestWiggle 2s ease-in-out infinite; transform-origin: center; }
+    .digest-pulse { animation: digestPulseOut 1.8s ease-out infinite; transform-origin: center; }
   </style>
 </head>
 <body class="h-full m-0 p-0">
@@ -49,6 +75,9 @@
           </button>
           <button id="tab-goals" onclick="switchToGoals()" class="px-6 py-3 font-semibold rounded-t-lg transition-all" style="background: transparent; color: #7a7970; border-top: 3px solid transparent;">
             🎯 Targeted Nutrition
+          </button>
+          <button id="tab-digestion" onclick="switchToDigestion()" class="px-6 py-3 font-semibold rounded-t-lg transition-all" style="background: transparent; color: #7a7970; border-top: 3px solid transparent;">
+            🎢 Digestion Journey
           </button>
         </div>
         <div class="flex items-center gap-2 md:gap-3">
@@ -247,6 +276,46 @@
               ← Choose Another Goal
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Digestion Journey Page -->
+    <div id="digestion-page" class="hidden min-h-full w-full p-6 md:p-10">
+      <div class="max-w-3xl mx-auto">
+        <header class="mb-8">
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: #9ca583;">
+              <span class="text-6xl">🎢</span>
+            </div>
+            <div>
+              <h1 id="digestion-title" class="text-4xl font-bold" style="color: #2d2d24;">Digestion Journey</h1>
+              <p id="digestion-subtitle" class="text-base" style="color: #7a7970;">Pick a food and follow it from bite to bloodstream</p>
+            </div>
+          </div>
+        </header>
+        <!-- Food Picker -->
+        <div class="mb-8 p-5 rounded-xl" id="digestion-picker-card" style="background: white; border: 2px solid #e8e5df;">
+          <label class="block text-sm font-semibold mb-2" style="color: #2d2d24;">Choose a food</label>
+          <select id="digestion-food-select" class="w-full px-4 py-3 rounded-lg text-base cursor-pointer focus:outline-none focus:ring-2 transition-all" style="background: white; color: #2d2d24; border: 2px solid #e8e5df;"></select>
+        </div>
+        <!-- Stage Dots -->
+        <div id="digestion-dots" class="flex items-center justify-center gap-2 mb-6"></div>
+        <!-- Stage Card -->
+        <div id="digestion-stage-card" class="rounded-2xl p-6 md:p-8 mb-6" style="background: white; border: 2px solid #e8e5df;">
+          <div id="digestion-svg-container" class="flex items-center justify-center mb-6" style="min-height: 200px;"></div>
+          <h3 id="digestion-stage-title" class="text-2xl font-bold text-center mb-2" style="color: #2d2d24;"></h3>
+          <p id="digestion-stage-caption" class="text-base text-center mb-4" style="color: #7a7970;"></p>
+          <div id="digestion-nutrient-callout" class="hidden mt-4 p-4 rounded-lg text-center" style="background: #eef2e7; border: 2px dashed #9ca583;"></div>
+        </div>
+        <!-- Controls -->
+        <div class="flex items-center justify-between">
+          <button id="digestion-back-btn" onclick="digestionStep(-1)" class="px-6 py-3 rounded-lg font-semibold transition-all" style="background: #e8e5df; color: #2d2d24;">
+            ← Back
+          </button>
+          <p id="digestion-progress-text" class="text-sm font-semibold" style="color: #7a7970;"></p>
+          <button id="digestion-next-btn" onclick="digestionStep(1)" class="px-6 py-3 rounded-lg font-semibold transition-all" style="background: #9ca583; color: white;">
+            Next →
+          </button>
         </div>
       </div>
     </div>
@@ -475,21 +544,23 @@
       // Tab buttons - update based on active state
       const tabExplorer = document.getElementById('tab-explorer');
       const tabGoals = document.getElementById('tab-goals');
-      if (!document.getElementById('explorer-page').classList.contains('hidden')) {
-        tabExplorer.style.background = theme.surface;
-        tabExplorer.style.color = '#9ca583';
-        tabExplorer.style.borderTopColor = '#9ca583';
-        tabGoals.style.background = 'transparent';
-        tabGoals.style.color = theme.textSecondary;
-        tabGoals.style.borderTopColor = 'transparent';
-      } else {
-        tabGoals.style.background = theme.surface;
-        tabGoals.style.color = '#9ca583';
-        tabGoals.style.borderTopColor = '#9ca583';
-        tabExplorer.style.background = 'transparent';
-        tabExplorer.style.color = theme.textSecondary;
-        tabExplorer.style.borderTopColor = 'transparent';
-      }
+      const tabDigestion = document.getElementById('tab-digestion');
+      const activeTab = !document.getElementById('explorer-page').classList.contains('hidden')
+        ? tabExplorer
+        : !document.getElementById('goals-page').classList.contains('hidden')
+          ? tabGoals
+          : tabDigestion;
+      [tabExplorer, tabGoals, tabDigestion].forEach(tab => {
+        if (tab === activeTab) {
+          tab.style.background = theme.surface;
+          tab.style.color = '#9ca583';
+          tab.style.borderTopColor = '#9ca583';
+        } else {
+          tab.style.background = 'transparent';
+          tab.style.color = theme.textSecondary;
+          tab.style.borderTopColor = 'transparent';
+        }
+      });
 
       // Update all direct text colors
       document.getElementById('app-title').style.color = theme.text;
@@ -4666,12 +4737,175 @@
     function switchToExplorer() {
       document.getElementById('explorer-page').classList.remove('hidden');
       document.getElementById('goals-page').classList.add('hidden');
+      document.getElementById('digestion-page').classList.add('hidden');
       applyTheme();
     }
     function switchToGoals() {
       document.getElementById('explorer-page').classList.add('hidden');
       document.getElementById('goals-page').classList.remove('hidden');
+      document.getElementById('digestion-page').classList.add('hidden');
       applyTheme();
+    }
+    function switchToDigestion() {
+      document.getElementById('explorer-page').classList.add('hidden');
+      document.getElementById('goals-page').classList.add('hidden');
+      document.getElementById('digestion-page').classList.remove('hidden');
+      applyTheme();
+    }
+    // Digestion Journey: reusable stage template for every food
+    const digestionStages = [
+      {
+        key: 'mouth',
+        title: 'Mouth: Chewing Begins',
+        caption: "Chewing breaks food into smaller pieces while saliva enzymes start breaking down starches, making everything easier to swallow.",
+        svg: `<svg viewBox="0 0 280 200" width="220" height="170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon mouth chewing food">
+          <ellipse cx="140" cy="130" rx="90" ry="55" fill="#c4614e"/>
+          <path d="M60 120 Q140 90 220 120 L220 130 Q140 100 60 130 Z" fill="#ffffff"/>
+          <path d="M60 140 Q140 170 220 140 L220 130 Q140 160 60 130 Z" fill="#ffffff"/>
+          <ellipse cx="140" cy="150" rx="40" ry="16" fill="#e67e50"/>
+          <circle class="digest-bounce" cx="140" cy="65" r="18" fill="#9ca583"/>
+          <circle cx="118" cy="35" r="5" fill="#5b8c6f" class="digest-drop"/>
+          <circle cx="162" cy="40" r="4" fill="#5b8c6f" class="digest-drop" style="animation-delay:0.4s"/>
+        </svg>`
+      },
+      {
+        key: 'esophagus',
+        title: 'Esophagus: The Trip Down',
+        caption: "Once swallowed, muscles squeeze in a wave-like motion (called peristalsis) to push food down into the stomach — no gravity required.",
+        svg: `<svg viewBox="0 0 280 200" width="220" height="170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon esophagus tube with food moving down">
+          <rect x="110" y="10" width="60" height="180" rx="30" fill="#e8b8a8"/>
+          <rect x="110" y="45" width="60" height="6" rx="3" fill="#d89686"/>
+          <rect x="110" y="95" width="60" height="6" rx="3" fill="#d89686"/>
+          <rect x="110" y="145" width="60" height="6" rx="3" fill="#d89686"/>
+          <circle class="digest-slide" cx="140" cy="32" r="16" fill="#9ca583"/>
+          <path d="M190 60 l10 10 l-10 10" stroke="#7a7970" stroke-width="3" fill="none" stroke-linecap="round" class="digest-wiggle"/>
+          <path d="M190 120 l10 10 l-10 10" stroke="#7a7970" stroke-width="3" fill="none" stroke-linecap="round" class="digest-wiggle" style="animation-delay:0.3s"/>
+        </svg>`
+      },
+      {
+        key: 'stomach',
+        title: 'Stomach: Churn and Break Down',
+        caption: "Stomach acid and enzymes churn food into a soft liquid mixture, breaking down proteins and clearing many unwanted bacteria along the way.",
+        svg: `<svg viewBox="0 0 280 200" width="220" height="170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon stomach with a friendly face breaking down food">
+          <path d="M90 40 Q150 20 190 60 Q230 100 190 150 Q150 190 100 160 Q60 140 70 100 Q75 60 90 40 Z" fill="#e8a86b" class="digest-wiggle"/>
+          <circle cx="120" cy="80" r="10" fill="white"/>
+          <circle cx="122" cy="82" r="5" fill="#2d2d24"/>
+          <circle cx="155" cy="80" r="10" fill="white"/>
+          <circle cx="157" cy="82" r="5" fill="#2d2d24"/>
+          <path d="M120 110 Q137 122 155 110" stroke="#2d2d24" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="150" cy="145" r="8" fill="#c4614e" class="digest-bounce"/>
+          <circle cx="170" cy="130" r="6" fill="#c4614e" class="digest-bounce" style="animation-delay:0.3s"/>
+          <circle cx="130" cy="150" r="5" fill="#c4614e" class="digest-bounce" style="animation-delay:0.6s"/>
+        </svg>`
+      },
+      {
+        key: 'absorption',
+        title: 'Small Intestine: Nutrients Absorbed',
+        caption: "This is where most nutrients cross into the bloodstream through millions of tiny finger-like structures called villi.",
+        svg: `<svg viewBox="0 0 280 200" width="220" height="170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon coiled small intestine absorbing nutrients into the bloodstream">
+          <path d="M40 60 Q80 20 120 60 Q160 100 200 60 Q240 20 260 55" stroke="#f0c4b0" stroke-width="26" fill="none" stroke-linecap="round"/>
+          <path d="M40 60 Q80 20 120 60 Q160 100 200 60 Q240 20 260 55" stroke="#e8a894" stroke-width="4" fill="none" stroke-dasharray="6 8" stroke-linecap="round"/>
+          <circle cx="80" cy="40" r="6" fill="#c4614e" class="digest-pulse"/>
+          <circle cx="120" cy="60" r="6" fill="#c4614e" class="digest-pulse" style="animation-delay:0.4s"/>
+          <circle cx="160" cy="90" r="6" fill="#c4614e" class="digest-pulse" style="animation-delay:0.8s"/>
+          <path d="M30 145 Q140 125 260 145" stroke="#7ba7c9" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.5"/>
+        </svg>`
+      },
+      {
+        key: 'large-intestine',
+        title: 'Large Intestine: Water and Waste',
+        caption: "Remaining water gets reabsorbed, gut bacteria ferment leftover fiber, and whatever's left is prepared to leave the body.",
+        svg: `<svg viewBox="0 0 280 200" width="220" height="170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cartoon large intestine reabsorbing water with friendly gut bacteria">
+          <path d="M40 50 L40 100 Q40 130 70 130 L190 130 Q220 130 220 100 L220 50" stroke="#c9a876" stroke-width="30" fill="none" stroke-linecap="round"/>
+          <circle cx="70" cy="60" r="6" fill="#7ba7c9" class="digest-drop"/>
+          <circle cx="190" cy="60" r="6" fill="#7ba7c9" class="digest-drop" style="animation-delay:0.5s"/>
+          <circle cx="100" cy="150" r="7" fill="#9ca583"/>
+          <circle cx="98" cy="149" r="1.5" fill="#2d2d24"/>
+          <circle cx="102" cy="149" r="1.5" fill="#2d2d24"/>
+          <circle cx="160" cy="155" r="6" fill="#9ca583"/>
+          <circle cx="158" cy="154" r="1.5" fill="#2d2d24"/>
+          <circle cx="162" cy="154" r="1.5" fill="#2d2d24"/>
+          <path d="M220 90 l14 0 l-6 -6 M234 90 l-6 6" stroke="#7a7970" stroke-width="3" fill="none" stroke-linecap="round" class="digest-wiggle"/>
+        </svg>`
+      }
+    ];
+    let currentDigestionStage = 0;
+    function getTopNutrients(food) {
+      const candidates = [
+        { key: 'protein', label: 'Protein', unit: 'g', threshold: 10 },
+        { key: 'fiber', label: 'Fiber', unit: 'g', threshold: 3 },
+        { key: 'vitaminC', label: 'Vitamin C', unit: 'mg', threshold: 20 },
+        { key: 'calcium', label: 'Calcium', unit: 'mg', threshold: 100 },
+        { key: 'iron', label: 'Iron', unit: 'mg', threshold: 1.5 },
+        { key: 'potassium', label: 'Potassium', unit: 'mg', threshold: 300 },
+        { key: 'vitaminA', label: 'Vitamin A', unit: 'mcg', threshold: 50 },
+        { key: 'magnesium', label: 'Magnesium', unit: 'mg', threshold: 50 },
+        { key: 'zinc', label: 'Zinc', unit: 'mg', threshold: 1 },
+        { key: 'fat', label: 'Healthy fats', unit: 'g', threshold: 5 }
+      ];
+      const ranked = candidates
+        .map(c => ({ label: c.label, unit: c.unit, value: food[c.key], ratio: (food[c.key] || 0) / c.threshold }))
+        .filter(c => c.value > 0)
+        .sort((a, b) => b.ratio - a.ratio);
+      const strong = ranked.filter(c => c.ratio >= 1).slice(0, 3);
+      if (strong.length > 0) return strong;
+      if (ranked.length > 0) return ranked.slice(0, 2);
+      return [{ label: 'Calories', unit: 'kcal', value: food.calories }];
+    }
+    function renderDigestionStage(index) {
+      const theme = getTheme();
+      const foodId = parseInt(document.getElementById('digestion-food-select').value, 10);
+      const food = foodDatabase.find(f => f.id === foodId) || foodDatabase[0];
+      const stage = digestionStages[index];
+
+      document.getElementById('digestion-svg-container').innerHTML = stage.svg;
+      document.getElementById('digestion-stage-title').textContent = stage.title;
+      document.getElementById('digestion-stage-title').style.color = theme.text;
+      document.getElementById('digestion-stage-caption').textContent = stage.caption;
+      document.getElementById('digestion-stage-caption').style.color = theme.textSecondary;
+
+      const callout = document.getElementById('digestion-nutrient-callout');
+      if (stage.key === 'absorption') {
+        const topNutrients = getTopNutrients(food);
+        const nutrientText = topNutrients.map(n => `${n.label} (${n.value}${n.unit})`).join(', ');
+        callout.innerHTML = `<span style="color: #2d2d24;">${food.emoji} <strong>${food.name}</strong> is especially rich in ${nutrientText} — these are among the nutrients absorbed here into the bloodstream.</span>`;
+        callout.classList.remove('hidden');
+      } else {
+        callout.classList.add('hidden');
+      }
+
+      const dotsContainer = document.getElementById('digestion-dots');
+      dotsContainer.innerHTML = digestionStages.map((s, i) => `
+        <span style="display:inline-block; width:${i === index ? '24px' : '10px'}; height:10px; border-radius:5px; background:${i === index ? '#9ca583' : theme.border}; transition: all 0.2s;"></span>
+      `).join('');
+
+      document.getElementById('digestion-progress-text').textContent = `Stage ${index + 1} of ${digestionStages.length}`;
+      document.getElementById('digestion-progress-text').style.color = theme.textSecondary;
+
+      const backBtn = document.getElementById('digestion-back-btn');
+      const nextBtn = document.getElementById('digestion-next-btn');
+      backBtn.disabled = index === 0;
+      backBtn.style.opacity = index === 0 ? '0.4' : '1';
+      backBtn.style.cursor = index === 0 ? 'default' : 'pointer';
+      nextBtn.textContent = index === digestionStages.length - 1 ? 'Restart ↺' : 'Next →';
+    }
+    function digestionStep(direction) {
+      if (currentDigestionStage === digestionStages.length - 1 && direction === 1) {
+        currentDigestionStage = 0;
+      } else {
+        currentDigestionStage = Math.max(0, Math.min(digestionStages.length - 1, currentDigestionStage + direction));
+      }
+      renderDigestionStage(currentDigestionStage);
+    }
+    function initDigestionPage() {
+      const select = document.getElementById('digestion-food-select');
+      const sorted = [...foodDatabase].sort((a, b) => a.name.localeCompare(b.name));
+      select.innerHTML = sorted.map(f => `<option value="${f.id}">${f.emoji} ${f.name}</option>`).join('');
+      select.addEventListener('change', () => {
+        currentDigestionStage = 0;
+        renderDigestionStage(0);
+      });
+      renderDigestionStage(0);
     }
     // Ranking algorithm for goal-based food relevance
     function rankFoodsForGoal(foods, goalKey) {
@@ -5174,6 +5408,7 @@
     }
     applyTheme();
     renderFoodGrid();
+    initDigestionPage();
   </script>
 </body>
 </html>
